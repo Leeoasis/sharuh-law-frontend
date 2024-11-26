@@ -1,9 +1,7 @@
-// src/components/Login.js
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { fetchlogin } from '../../redux/auth/loginSlice';
-
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -23,7 +21,9 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Form submitted:', formData); // Debugging statement
     dispatch(fetchlogin(formData)).then((response) => {
+      console.log('Response:', response); // Debugging statement
       if (response.type === 'login/fetchlogin/fulfilled') {
         if (response.payload.role === 'client') {
           navigate('/client-dashboard');

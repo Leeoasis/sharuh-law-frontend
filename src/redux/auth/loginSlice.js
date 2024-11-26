@@ -1,12 +1,11 @@
-// src/features/auth/loginSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 export const fetchlogin = createAsyncThunk(
   'login/fetchlogin',
   async (user) => {
-    const url = 'http://127.0.0.1:3000/users/sign_in';
-    const response = await axios.post(url, user);
+    const url = 'http://127.0.0.1:3001/login'; // Ensure this URL is correct
+    const response = await axios.post(url, { user }); // Nest parameters under 'user'
     localStorage.setItem('token', response.headers['Authorization']);
     localStorage.setItem('data', JSON.stringify(response.data.user));
     return response.data.user;
