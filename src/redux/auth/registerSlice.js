@@ -5,7 +5,7 @@ import axios from 'axios';
 export const fetchreg = createAsyncThunk(
   'sign_up/fetchregistration',
   async (user) => {
-    const url = 'http://127.0.0.1:3000/users';
+    const url = 'http://localhost:3001/signup';
     const response = await axios.post(url, user);
     localStorage.setItem('token', response.headers['Authorization']);
     localStorage.setItem('data', JSON.stringify(response.data.user));

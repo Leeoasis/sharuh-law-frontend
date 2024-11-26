@@ -11,28 +11,28 @@ const Register = () => {
     password_confirmation: '',
     name: '',
     role: 'client', // default role
-    phone_number: '',
-    profile_picture: '',
-    address: '',
+    // phone_number: '',
+    // profile_picture: '',
+    // address: '',
     // Lawyer-specific fields
     license_number: '',
     specializations: '',
     experience_years: '',
-    bio: '',
-    languages: '',
-    hourly_rate: '',
-    office_address: '',
-    practice_state: '',
-    average_rating: '',
-    review_count: '',
-    certifications: '',
-    verification_status: false,
-    portfolio_url: '',
+    // bio: '',
+    // languages: '',
+    // hourly_rate: '',
+    // office_address: '',
+    // practice_state: '',
+    // average_rating: '',
+    // review_count: '',
+    // certifications: '',
+    // verification_status: false,
+    // portfolio_url: '',
     // Client-specific fields
     preferred_language: '',
     budget: '',
-    case_type: '',
-    current_case_id: '',
+    // case_type: '',
+    // current_case_id: '',
   });
 
   const dispatch = useDispatch();
@@ -77,16 +77,16 @@ const Register = () => {
             <input type="text" name="license_number" value={formData.license_number} onChange={handleChange} placeholder="License Number" className="mb-4 p-2 w-full border rounded" />
             <textarea name="specializations" value={formData.specializations} onChange={handleChange} placeholder="Specializations" className="mb-4 p-2 w-full border rounded"></textarea>
             <input type="number" name="experience_years" value={formData.experience_years} onChange={handleChange} placeholder="Experience Years" className="mb-4 p-2 w-full border rounded" />
-            <textarea name="bio" value={formData.bio} onChange={handleChange} placeholder="Bio" className="mb-4 p-2 w-full border rounded"></textarea>
-            <input type="text" name="languages" value={formData.languages} onChange={handleChange} placeholder="Languages" className="mb-4 p-2 w-full border rounded" />
-            <input type="number" name="hourly_rate" value={formData.hourly_rate} onChange={handleChange} placeholder="Hourly Rate" className="mb-4 p-2 w-full border rounded" />
-            <textarea name="office_address" value={formData.office_address} onChange={handleChange} placeholder="Office Address" className="mb-4 p-2 w-full border rounded"></textarea>
+            {/* <textarea name="bio" value={formData.bio} onChange={handleChange} placeholder="Bio" className="mb-4 p-2 w-full border rounded"></textarea> */}
+            {/* <input type="text" name="languages" value={formData.languages} onChange={handleChange} placeholder="Languages" className="mb-4 p-2 w-full border rounded" /> */}
+            {/* <input type="number" name="hourly_rate" value={formData.hourly_rate} onChange={handleChange} placeholder="Hourly Rate" className="mb-4 p-2 w-full border rounded" /> */}
+            {/* <textarea name="office_address" value={formData.office_address} onChange={handleChange} placeholder="Office Address" className="mb-4 p-2 w-full border rounded"></textarea>
             <input type="text" name="practice_state" value={formData.practice_state} onChange={handleChange} placeholder="Practice State" className="mb-4 p-2 w-full border rounded" />
             <input type="number" name="average_rating" value={formData.average_rating} onChange={handleChange} placeholder="Average Rating" className="mb-4 p-2 w-full border rounded" />
             <input type="number" name="review_count" value={formData.review_count} onChange={handleChange} placeholder="Review Count" className="mb-4 p-2 w-full border rounded" />
             <textarea name="certifications" value={formData.certifications} onChange={handleChange} placeholder="Certifications" className="mb-4 p-2 w-full border rounded"></textarea>
-            <input type="checkbox" name="verification_status" checked={formData.verification_status} onChange={handleChange} className="mb-4 p-2 w-full border rounded" /> Verification Status
-            <input type="text" name="portfolio_url" value={formData.portfolio_url} onChange={handleChange} placeholder="Portfolio URL" className="mb-4 p-2 w-full border rounded" />
+            <input type="checkbox" name="verification_status" checked={formData.verification_status} onChange={handleChange} className="mb-4 p-2 w-full border rounded" /> Verification Status */}
+            {/* <input type="text" name="portfolio_url" value={formData.portfolio_url} onChange={handleChange} placeholder="Portfolio URL" className="mb-4 p-2 w-full border rounded" /> */}
           </>
         )}
 
@@ -94,8 +94,8 @@ const Register = () => {
           <>
             <input type="text" name="preferred_language" value={formData.preferred_language} onChange={handleChange} placeholder="Preferred Language" className="mb-4 p-2 w-full border rounded" />
             <input type="text" name="budget" value={formData.budget} onChange={handleChange} placeholder="Budget" className="mb-4 p-2 w-full border rounded" />
-            <input type="text" name="case_type" value={formData.case_type} onChange={handleChange} placeholder="Case Type" className="mb-4 p-2 w-full border rounded" />
-            <input type="number" name="current_case_id" value={formData.current_case_id} onChange={handleChange} placeholder="Current Case ID" className="mb-4 p-2 w-full border rounded" />
+            {/* <input type="text" name="case_type" value={formData.case_type} onChange={handleChange} placeholder="Case Type" className="mb-4 p-2 w-full border rounded" /> */}
+            {/* <input type="number" name="current_case_id" value={formData.current_case_id} onChange={handleChange} placeholder="Current Case ID" className="mb-4 p-2 w-full border rounded" /> */}
           </>
         )}
 
