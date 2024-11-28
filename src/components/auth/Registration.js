@@ -55,6 +55,7 @@ const Register = () => {
         } else if (response.payload.role === 'lawyer') {
           navigate('/lawyer-dashboard');
         }
+        navigate('/login'); // Navigate to login page after successful registration
       }
     });
   };
