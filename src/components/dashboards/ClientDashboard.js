@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ReactCalendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import Modal from 'react-modal';
+import ModalComponent from '../ModalComponent';
 
 const ClientDashboard = () => {
   const [selectedOption, setSelectedOption] = useState('Case Management');
@@ -10,10 +10,7 @@ const ClientDashboard = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [eventTitle, setEventTitle] = useState('');
 
-  const openModal = () => {
-    setModalIsOpen(true);
-  };
-
+  const openModal = () => setModalIsOpen(true);
   const closeModal = () => {
     setModalIsOpen(false);
     setEventTitle('');
@@ -27,169 +24,107 @@ const ClientDashboard = () => {
   };
 
   const renderContent = () => {
-    switch (selectedOption) {
-      case 'Case Management':
-        return (
-          <div>
-            <h2 className="text-2xl font-semibold text-primary-light mb-4">Case Management</h2>
-            <p className="text-secondary-light mb-4">View and manage your cases.</p>
-            <button className="bg-primary text-secondary px-4 py-2 rounded hover:bg-primary-light">
-              View Cases
-            </button>
-          </div>
-        );
-      case 'Find a Lawyer':
-        return (
-          <div>
-            <h2 className="text-2xl font-semibold text-primary-light mb-4">Find a Lawyer</h2>
-            <p className="text-secondary-light mb-4">Search for lawyers to assist you with your cases.</p>
-            <button className="bg-primary text-secondary px-4 py-2 rounded hover:bg-primary-light">
-              Search Lawyers
-            </button>
-          </div>
-        );
-      case 'Profile':
-        return (
-          <div>
-            <h2 className="text-2xl font-semibold text-primary-light mb-4">Profile</h2>
-            <p className="text-secondary-light mb-4">Update your profile and settings.</p>
-            <button className="bg-primary text-secondary px-4 py-2 rounded hover:bg-primary-light">
-              Edit Profile
-            </button>
-          </div>
-        );
-      case 'Notifications':
-        return (
-          <div>
-            <h2 className="text-2xl font-semibold text-primary-light mb-4">Notifications</h2>
-            <p className="text-secondary-light mb-4">Check your latest notifications.</p>
-            <button className="bg-primary text-secondary px-4 py-2 rounded hover:bg-primary-light">
-              View Notifications
-            </button>
-          </div>
-        );
-      case 'Calendar':
-        return (
-          <div>
-            <h2 className="text-2xl font-semibold text-primary-light mb-4">Calendar</h2>
-            <p className="text-secondary-light mb-4">Manage your schedule and appointments.</p>
-            <ReactCalendar
-              onChange={setDate}
-              value={date}
-              tileContent={({ date }) =>
-                events
-                  .filter((event) => event.date === date.toDateString())
-                  .map((event, index) => (
-                    <p key={index} className="text-xs text-primary font-semibold">
-                      {event.title}
-                    </p>
-                  ))
-              }
-              className="bg-secondary text-primary rounded-lg shadow-lg"
-            />
-            <button
-              onClick={openModal}
-              className="mt-4 bg-primary text-secondary px-4 py-2 rounded hover:bg-primary-light"
-            >
-              Add Event
-            </button>
-          </div>
-        );
-      case 'Messages':
-        return (
-          <div>
-            <h2 className="text-2xl font-semibold text-primary-light mb-4">Messages</h2>
-            <p className="text-secondary-light mb-4">Check your messages and communicate with lawyers.</p>
-            <button className="bg-primary text-secondary px-4 py-2 rounded hover:bg-primary-light">
-              View Messages
-            </button>
-          </div>
-        );
-      default:
-        return (
-          <div>
-            <h2 className="text-2xl font-semibold text-primary-light mb-4">Welcome</h2>
-            <p className="text-secondary-light">Please select an option from the sidebar.</p>
-          </div>
-        );
-    }
+    const contentMap = {
+      'Case Management': (
+        <ContentSection title="Case Management" description="View and manage your cases." buttonText="View Cases" />
+      ),
+      'Find a Lawyer': (
+        <ContentSection title="Find a Lawyer" description="Search for lawyers to assist you with your cases." buttonText="Search Lawyers" />
+      ),
+      'Profile': (
+        <ContentSection title="Profile" description="Update your profile and settings." buttonText="Edit Profile" />
+      ),
+      'Notifications': (
+        <ContentSection title="Notifications" description="Check your latest notifications." buttonText="View Notifications" />
+      ),
+      'Calendar': (
+        <CalendarSection date={date} setDate={setDate} events={events} openModal={openModal} />
+      ),
+      'Messages': (
+        <ContentSection title="Messages" description="Check your messages and communicate with lawyers." buttonText="View Messages" />
+      ),
+    };
+    return contentMap[selectedOption] || <WelcomeSection />;
   };
 
   return (
-    <div className="flex min-h-screen bg-secondary-light text-white">
-      {/* Sidebar Navigation */}
-      <div className="w-64 bg-secondary p-6 shadow-lg">
-        <h2 className="text-3xl font-bold text-primary mb-8">Dashboard</h2>
-        <nav className="space-y-4">
-          {[
-            'Case Management',
-            'Find a Lawyer',
-            'Profile',
-            'Notifications',
-            'Calendar',
-            'Messages',
-          ].map((option) => (
-            <button
-              key={option}
-              className={`w-full text-left px-4 py-2 rounded-lg ${
-                selectedOption === option
-                  ? 'bg-primary text-secondary'
-                  : 'bg-secondary-light text-primary-light hover:bg-primary hover:text-secondary'
-              }`}
-              onClick={() => setSelectedOption(option)}
-            >
-              {option}
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      {/* Main Content Area */}
-      <div className="flex-1 p-8">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-primary">Client Dashboard</h1>
-          <div className="flex items-center space-x-4">
-            <span className="text-lg">Welcome, Client</span>
-            <div className="w-12 h-12 bg-secondary-light rounded-full flex items-center justify-center text-primary font-bold">
-              C
-            </div>
-          </div>
-        </div>
-
-        {/* Dynamic Content */}
-        <div className="bg-secondary shadow-lg rounded-lg p-6">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-secondary-light text-white">
+      <Sidebar selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+      <div className="flex-1 p-4 lg:p-8">
+        <Header />
+        <div className="bg-secondary shadow-lg rounded-lg p-4 lg:p-6">
           {renderContent()}
         </div>
       </div>
-
-      {/* Modal for adding event */}
-      <Modal
+      <ModalComponent
         isOpen={modalIsOpen}
         onRequestClose={closeModal}
-        contentLabel="Add Event"
-        className="bg-secondary p-6 rounded-lg shadow-lg max-w-md mx-auto mt-20"
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
-      >
-        <h2 className="text-2xl font-semibold text-primary mb-4">Schedule Appointments</h2>
-        <input
-          type="text"
-          value={eventTitle}
-          onChange={(e) => setEventTitle(e.target.value)}
-          placeholder="Event Title"
-          className="w-full p-2 mb-4 rounded bg-secondary-light text-primary"
-        />
-        <div className="flex justify-end space-x-4">
-          <button onClick={closeModal} className="bg-secondary-light text-primary px-4 py-2 rounded hover:bg-primary-light">
-            Cancel
-          </button>
-          <button onClick={handleAddEvent} className="bg-primary text-secondary px-4 py-2 rounded hover:bg-primary-light">
-            Add Event
-          </button>
-        </div>
-      </Modal>
+        eventTitle={eventTitle}
+        setEventTitle={setEventTitle}
+        handleAddEvent={handleAddEvent}
+      />
     </div>
   );
 };
+
+const Sidebar = ({ selectedOption, setSelectedOption }) => (
+  <div className="w-full lg:w-64 bg-secondary p-4 lg:p-6 shadow-lg">
+    <h2 className="text-3xl font-bold text-primary mb-4 lg:mb-8">Dashboard</h2>
+    <nav className="space-y-2 lg:space-y-4">
+      {['Case Management', 'Find a Lawyer', 'Profile', 'Notifications', 'Calendar', 'Messages'].map((option) => (
+        <button
+          key={option}
+          className={`w-full text-left px-4 py-2 rounded-lg ${selectedOption === option ? 'bg-primary text-secondary' : 'bg-secondary-light text-primary-light hover:bg-primary hover:text-secondary'}`}
+          onClick={() => setSelectedOption(option)}
+        >
+          {option}
+        </button>
+      ))}
+    </nav>
+  </div>
+);
+
+const Header = () => (
+  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 lg:mb-8">
+    <h1 className="text-4xl font-bold text-primary mb-4 lg:mb-0">Client Dashboard</h1>
+    <div className="flex items-center space-x-4">
+      <span className="text-lg">Welcome, Client</span>
+      <div className="w-12 h-12 bg-secondary-light rounded-full flex items-center justify-center text-primary font-bold">C</div>
+    </div>
+  </div>
+);
+
+const ContentSection = ({ title, description, buttonText }) => (
+  <div>
+    <h2 className="text-2xl font-semibold text-primary-light mb-4">{title}</h2>
+    <p className="text-secondary-light mb-4">{description}</p>
+    <button className="bg-primary text-secondary px-4 py-2 rounded hover:bg-primary-light">{buttonText}</button>
+  </div>
+);
+
+const CalendarSection = ({ date, setDate, events, openModal }) => (
+  <div>
+    <h2 className="text-2xl font-semibold text-primary-light mb-4">Calendar</h2>
+    <p className="text-secondary-light mb-4">Manage your schedule and appointments.</p>
+    <ReactCalendar
+      onChange={setDate}
+      value={date}
+      tileContent={({ date }) =>
+        events.filter((event) => event.date === date.toDateString()).map((event, index) => (
+          <p key={index} className="text-xs text-primary font-semibold">{event.title}</p>
+        ))
+      }
+      className="bg-secondary text-primary rounded-lg shadow-lg"
+    />
+    <button onClick={openModal} className="mt-4 bg-primary text-secondary px-4 py-2 rounded hover:bg-primary-light">Add Event</button>
+  </div>
+);
+
+const WelcomeSection = () => (
+  <div>
+    <h2 className="text-2xl font-semibold text-primary-light mb-4">Welcome</h2>
+    <p className="text-secondary-light">Please select an option from the sidebar.</p>
+  </div>
+);
 
 export default ClientDashboard;
