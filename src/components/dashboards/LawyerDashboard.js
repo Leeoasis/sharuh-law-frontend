@@ -1,59 +1,130 @@
-// src/components/LawyerDashboard.js
-import React from 'react';
+import React, { useState } from 'react';
+import ReactCalendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
+import ModalComponent from '../ModalComponent';
 
 const LawyerDashboard = () => {
+  const [selectedOption, setSelectedOption] = useState('Client Management');
+  const [date, setDate] = useState(new Date());
+  const [events, setEvents] = useState([]);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [eventTitle, setEventTitle] = useState('');
+
+  const openModal = () => setModalIsOpen(true);
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setEventTitle('');
+  };
+
+  const handleAddEvent = () => {
+    if (eventTitle) {
+      setEvents([...events, { date: date.toDateString(), title: eventTitle }]);
+      closeModal();
+    }
+  };
+
+  const renderContent = () => {
+    const contentMap = {
+      'Client Management': (
+        <ContentSection title="Client Management" description="View and manage your clients." buttonText="View Clients" />
+      ),
+      'Case Management': (
+        <ContentSection title="Case Management" description="Track and manage your cases." buttonText="View Cases" />
+      ),
+      'Profile': (
+        <ContentSection title="Profile" description="Update your profile and settings." buttonText="Edit Profile" />
+      ),
+      'Notifications': (
+        <ContentSection title="Notifications" description="Check your latest notifications." buttonText="View Notifications" />
+      ),
+      'Calendar': (
+        <CalendarSection date={date} setDate={setDate} events={events} openModal={openModal} />
+      ),
+      'Messages': (
+        <ContentSection title="Messages" description="Check your messages and communicate with clients." buttonText="View Messages" />
+      ),
+    };
+    return contentMap[selectedOption] || <WelcomeSection />;
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-7xl mx-auto bg-white shadow-lg rounded-lg p-6">
-        <h1 className="text-4xl font-bold mb-6 text-center">Lawyer Dashboard</h1>
-        <p className="text-lg mb-8 text-center">Welcome to your dashboard, where you can manage your clients and cases.</p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Client Management Section */}
-          <div className="bg-blue-100 p-4 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4">Client Management</h2>
-            <p className="mb-4">View and manage your clients.</p>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">View Clients</button>
-          </div>
-
-          {/* Case Management Section */}
-          <div className="bg-green-100 p-4 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4">Case Management</h2>
-            <p className="mb-4">Track and manage your cases.</p>
-            <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700">View Cases</button>
-          </div>
-
-          {/* Profile Section */}
-          <div className="bg-yellow-100 p-4 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4">Profile</h2>
-            <p className="mb-4">Update your profile and settings.</p>
-            <button className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-700">Edit Profile</button>
-          </div>
-
-          {/* Notifications Section */}
-          <div className="bg-purple-100 p-4 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4">Notifications</h2>
-            <p className="mb-4">Check your latest notifications.</p>
-            <button className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-700">View Notifications</button>
-          </div>
-
-          {/* Calendar Section */}
-          <div className="bg-red-100 p-4 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4">Calendar</h2>
-            <p className="mb-4">Manage your schedule and appointments.</p>
-            <button className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">View Calendar</button>
-          </div>
-
-          {/* Messages Section */}
-          <div className="bg-indigo-100 p-4 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4">Messages</h2>
-            <p className="mb-4">Check your messages and communicate with clients.</p>
-            <button className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-700">View Messages</button>
-          </div>
+    <div className="flex flex-col lg:flex-row min-h-screen bg-secondary-light text-white">
+      <Sidebar selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+      <div className="flex-1 p-4 lg:p-8">
+        <Header />
+        <div className="bg-secondary shadow-lg rounded-lg p-4 lg:p-6">
+          {renderContent()}
         </div>
       </div>
+      <ModalComponent
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        eventTitle={eventTitle}
+        setEventTitle={setEventTitle}
+        handleAddEvent={handleAddEvent}
+      />
     </div>
   );
 };
+
+const Sidebar = ({ selectedOption, setSelectedOption }) => (
+  <div className="w-full lg:w-64 bg-secondary p-4 lg:p-6 shadow-lg">
+    <h2 className="text-3xl font-bold text-primary mb-4 lg:mb-8">Dashboard</h2>
+    <nav className="space-y-2 lg:space-y-4">
+      {['Client Management', 'Case Management', 'Profile', 'Notifications', 'Calendar', 'Messages'].map((option) => (
+        <button
+          key={option}
+          className={`w-full text-left px-4 py-2 rounded-lg ${selectedOption === option ? 'bg-primary text-secondary' : 'bg-secondary-light text-primary-light hover:bg-primary hover:text-secondary'}`}
+          onClick={() => setSelectedOption(option)}
+        >
+          {option}
+        </button>
+      ))}
+    </nav>
+  </div>
+);
+
+const Header = () => (
+  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 lg:mb-8">
+    <h1 className="text-4xl font-bold text-primary mb-4 lg:mb-0">Lawyer Dashboard</h1>
+    <div className="flex items-center space-x-4">
+      <span className="text-lg">Welcome, Lawyer</span>
+      <div className="w-12 h-12 bg-secondary-light rounded-full flex items-center justify-center text-primary font-bold">L</div>
+    </div>
+  </div>
+);
+
+const ContentSection = ({ title, description, buttonText }) => (
+  <div>
+    <h2 className="text-2xl font-semibold text-primary-light mb-4">{title}</h2>
+    <p className="text-secondary-light mb-4">{description}</p>
+    <button className="bg-primary text-secondary px-4 py-2 rounded hover:bg-primary-light">{buttonText}</button>
+  </div>
+);
+
+const CalendarSection = ({ date, setDate, events, openModal }) => (
+  <div>
+    <h2 className="text-2xl font-semibold text-primary-light mb-4">Calendar</h2>
+    <p className="text-secondary-light mb-4">Manage your schedule and appointments.</p>
+    <ReactCalendar
+      onChange={setDate}
+      value={date}
+      tileContent={({ date }) =>
+        events.filter((event) => event.date === date.toDateString()).map((event, index) => (
+          <p key={index} className="text-xs text-primary font-semibold">{event.title}</p>
+        ))
+      }
+      className="bg-secondary text-primary rounded-lg shadow-lg"
+    />
+    <button onClick={openModal} className="mt-4 bg-primary text-secondary px-4 py-2 rounded hover:bg-primary-light">Add Event</button>
+  </div>
+);
+
+const WelcomeSection = () => (
+  <div>
+    <h2 className="text-2xl font-semibold text-primary-light mb-4">Welcome</h2>
+    <p className="text-secondary-light">Please select an option from the sidebar.</p>
+  </div>
+);
 
 export default LawyerDashboard;
