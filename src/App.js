@@ -10,12 +10,13 @@ import LawyerDashboard from './components/dashboards/LawyerDashboard';
 const App = () => (
   <Router>
     <Routes>
+      {/* <Route path="/" element={<ClientDashboard />} /> */}
+      
       <Route path="/" element={<Landing />} />
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
       <Route path="/client-dashboard" element={<ClientDashboard />} />
-      <Route path="/lawyer-dashboard" element={<LawyerDashboard />} />
-      {/* Add other routes as needed */}
+      <Route path="/lawyer-dashboard" element={<LawyerDashboard />} /> 
     </Routes>
   </Router>
 );
