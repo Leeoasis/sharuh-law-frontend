@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom';
 
 const Landing = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-green-500 flex flex-col justify-center items-center text-white">
+    <div className="min-h-screen bg-gradient-to-r from-slate-500 to-slate-800 flex flex-col justify-center items-center text-white">
       <div className="text-center">
-        <h1 className="text-6xl font-bold mb-4">Welcome to Lawyer-Client Connect</h1>
-        <p className="text-2xl mb-8">Connecting clients with lawyers for legal assistance.</p>
+        <h1 className="text-4xl font-bold mb-4 text-primary-light">Welcome to Lawyer-Client Connect</h1>
+        <p className="text-xl mb-8 text-primary-light">Connecting clients with lawyers for legal assistance.</p>
         <div className="space-x-4">
-          <Link to="/register" className="bg-blue-700 text-white px-6 py-3 rounded-full hover:bg-blue-900 transition duration-300">Sign Up</Link>
-          <Link to="/login" className="bg-green-700 text-white px-6 py-3 rounded-full hover:bg-green-900 transition duration-300">Login</Link>
+          <Link to="/register" className="bg-primary text-white px-6 py-3 rounded hover:bg-secondary transition duration-300">Sign Up</Link>
+          <Link to="/login" className="bg-secondary text-white px-6 py-3 rounded hover:bg-primary transition duration-300">Login</Link>
         </div>
       </div>
       <div className="mt-12">
