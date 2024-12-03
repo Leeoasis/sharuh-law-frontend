@@ -1,4 +1,3 @@
-// src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Landing from './components/WelcomePage';
@@ -9,9 +8,7 @@ import LawyerDashboard from './components/dashboards/LawyerDashboard';
 
 const App = () => (
   <Router>
-    <Routes>
-      {/* <Route path="/" element={<ClientDashboard />} /> */}
-      
+    <Routes>      
       <Route path="/" element={<Landing />} />
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
