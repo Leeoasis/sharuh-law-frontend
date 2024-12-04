@@ -1,7 +1,7 @@
 import React from "react";
-import { Link } from "react-router-dom"; // Import Link from react-router-dom
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"; // Import FontAwesomeIcon
-import { faBars } from "@fortawesome/free-solid-svg-icons"; // Import the specific icon
+import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBars } from "@fortawesome/free-solid-svg-icons";
 
 const Navbar = () => {
     return (
@@ -24,12 +24,6 @@ const Navbar = () => {
                         className="hover:text-amber-400 transition duration-300 flex items-center"
                     >
                         About
-                    </Link>
-                    <Link
-                        to="/services"
-                        className="hover:text-amber-400 transition duration-300 flex items-center"
-                    >
-                        Services
                     </Link>
                     <Link
                         to="/contact"

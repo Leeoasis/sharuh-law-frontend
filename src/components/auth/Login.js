@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { fetchlogin } from '../../redux/auth/loginSlice';
-import Navbar from '../landingNav/Navbar';
-import Footer from '../landingNav/Footer';
+import Navbar from '../landingSite/Navbar';
+import Footer from '../landingSite/Footer';
 import LoginBackground from '../../assets/Images/analysis.jpeg';
 
 const Login = () => {
