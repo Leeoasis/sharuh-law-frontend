@@ -4,10 +4,11 @@ import axios from 'axios';
 export const fetchlogin = createAsyncThunk(
   'login/fetchlogin',
   async (user) => {
-    const url = 'http://127.0.0.1:3001/login'; // Ensure this URL is correct
-    const response = await axios.post(url, { user }); // Nest parameters under 'user'
-    localStorage.setItem('token', response.headers['Authorization']);
+    const url = 'http://127.0.0.1:3001/login';
+    const response = await axios.post(url, { user });
+    localStorage.setItem('token', response.headers.get('Authorization'));
     localStorage.setItem('data', JSON.stringify(response.data.user));
+    console.log(response.data.user);
     return response.data.user;
   },
 );
