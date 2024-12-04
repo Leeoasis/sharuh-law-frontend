@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import ReactCalendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import ModalComponent from '../ModalComponent';
+import { FaSignOutAlt } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+
 
 const LawyerDashboard = () => {
   const [selectedOption, setSelectedOption] = useState('Client Management');
@@ -9,6 +12,7 @@ const LawyerDashboard = () => {
   const [events, setEvents] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [eventTitle, setEventTitle] = useState('');
+  const navigate = useNavigate();
 
   const openModal = () => setModalIsOpen(true);
   const closeModal = () => {
@@ -21,6 +25,10 @@ const LawyerDashboard = () => {
       setEvents([...events, { date: date.toDateString(), title: eventTitle }]);
       closeModal();
     }
+  };
+
+  const handleLogout = () => {
+    navigate('/');
   };
 
   const renderContent = () => {
@@ -43,6 +51,9 @@ const LawyerDashboard = () => {
       'Messages': (
         <ContentSection title="Messages" description="Check your messages and communicate with clients." buttonText="View Messages" />
       ),
+      // 'Welcome': (
+      //   <WelcomeSection />
+      // ),
     };
     return contentMap[selectedOption] || <WelcomeSection />;
   };
@@ -51,7 +62,7 @@ const LawyerDashboard = () => {
     <div className="flex flex-col lg:flex-row min-h-screen bg-secondary-light text-white">
       <Sidebar selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
       <div className="flex-1 p-4 lg:p-8">
-        <Header />
+        <Header handleLogout={handleLogout} />
         <div className="bg-secondary shadow-lg rounded-lg p-4 lg:p-6">
           {renderContent()}
         </div>
@@ -84,12 +95,15 @@ const Sidebar = ({ selectedOption, setSelectedOption }) => (
   </div>
 );
 
-const Header = () => (
+const Header = ({ handleLogout }) => (
   <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 lg:mb-8">
     <h1 className="text-4xl font-bold text-primary mb-4 lg:mb-0">Lawyer Dashboard</h1>
     <div className="flex items-center space-x-4">
       <span className="text-lg">Welcome, Lawyer</span>
-      <div className="w-12 h-12 bg-secondary-light rounded-full flex items-center justify-center text-primary font-bold">L</div>
+      <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center text-primary font-bold">L</div>
+      <button onClick={handleLogout} className="flex items-center bg-primary text-secondary px-4 py-2 rounded hover:bg-primary-light">
+        <FaSignOutAlt className="mr-2" /> Logout
+      </button>
     </div>
   </div>
 );
