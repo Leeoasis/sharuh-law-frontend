@@ -163,8 +163,8 @@ const LawyerSearchSection = ({ lawyers, loading, error }) => (
           <li key={lawyer.id} className="mb-2">
             <div className="bg-secondary-light p-4 rounded-lg shadow-lg">
               <h3 className="text-xl font-bold text-primary">{lawyer.name}</h3>
-              <p className="text-secondary-light">Specializations: {lawyer.specializations}</p>
-              <p className="text-secondary-light">Experience: {lawyer.experience_years} years</p>
+              <p className="text-white">Specializations: {lawyer.specializations}</p>
+              <p className="text-white">Experience: {lawyer.experience_years} years</p>
             </div>
           </li>
         ))}

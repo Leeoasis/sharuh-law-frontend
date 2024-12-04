@@ -10,6 +10,15 @@ export const fetchLawyers = createAsyncThunk(
   }
 );
 
+// Async thunk for fetching clients
+export const fetchClients = createAsyncThunk(
+  'user/fetchClients',
+  async (criteria) => {
+    const response = await axiosInstance.get('/api/clients', { params: criteria });
+    return response.data;
+  }
+);
+
 // Async thunk for updating user profile
 export const updateProfile = createAsyncThunk(
   'user/updateProfile',
@@ -22,6 +31,7 @@ export const updateProfile = createAsyncThunk(
 
 const initialState = {
   lawyers: [],
+  clients: [],
   profile: JSON.parse(localStorage.getItem('data')) || {},
   loading: false,
   error: null,
@@ -41,6 +51,17 @@ const userSlice = createSlice({
         state.lawyers = action.payload;
       })
       .addCase(fetchLawyers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchClients.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchClients.fulfilled, (state, action) => {
+        state.loading = false;
+        state.clients = action.payload;
+      })
+      .addCase(fetchClients.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
