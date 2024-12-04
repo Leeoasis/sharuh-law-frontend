@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchClients, updateProfile } from '../../redux/features/userSlice';
 import ReactCalendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import ModalComponent from '../ModalComponent';
@@ -13,6 +15,14 @@ const LawyerDashboard = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [eventTitle, setEventTitle] = useState('');
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { clients, profile, loading, error } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    if (selectedOption === 'Client Management') {
+      dispatch(fetchClients({}));
+    }
+  }, [selectedOption, dispatch]);
 
   const openModal = () => setModalIsOpen(true);
   const closeModal = () => {
@@ -31,16 +41,20 @@ const LawyerDashboard = () => {
     navigate('/');
   };
 
+  const handleProfileUpdate = (profileData) => {
+    dispatch(updateProfile(profileData));
+  };
+
   const renderContent = () => {
     const contentMap = {
       'Client Management': (
-        <ContentSection title="Client Management" description="View and manage your clients." buttonText="View Clients" />
+        <ClientManagementSection clients={clients} loading={loading} error={error} />
       ),
       'Case Management': (
         <ContentSection title="Case Management" description="Track and manage your cases." buttonText="View Cases" />
       ),
       'Profile': (
-        <ContentSection title="Profile" description="Update your profile and settings." buttonText="Edit Profile" />
+        <ProfileSection profile={profile} onUpdate={handleProfileUpdate} loading={loading} error={error} />
       ),
       'Notifications': (
         <ContentSection title="Notifications" description="Check your latest notifications." buttonText="View Notifications" />
@@ -140,5 +154,128 @@ const WelcomeSection = () => (
     <p className="text-secondary-light">Please select an option from the sidebar.</p>
   </div>
 );
+
+const ClientManagementSection = ({ clients, loading, error }) => (
+  <div>
+    <h2 className="text-2xl font-semibold text-primary-light mb-4">Client Management</h2>
+    {loading ? (
+      <p>Loading...</p>
+    ) : error ? (
+      <p className="text-red-500">{error}</p>
+    ) : (
+      <ul>
+        {clients.map((client) => (
+          <li key={client.id} className="mb-2">
+            <div className="bg-secondary-light p-4 rounded-lg shadow-lg">
+              <h3 className="text-xl font-bold text-primary">{client.name}</h3>
+              <p className="text-white">Preferred Language: {client.preferred_language}</p>
+              <p className="text-white">Budget: {client.budget}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+);
+
+const ProfileSection = ({ profile, onUpdate, loading, error }) => {
+  const [formData, setFormData] = useState({
+    name: profile.name || '',
+    email: profile.email || '',
+    password: '',
+    preferred_language: profile.preferred_language || '',
+    budget: profile.budget || '',
+    license_number: profile.license_number || '',
+    specializations: profile.specializations || '',
+    experience_years: profile.experience_years || '',
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onUpdate(formData);
+  };
+
+  return (
+    <div>
+      <h2 className="text-2xl font-semibold text-primary-light mb-4">Profile</h2>
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
+      ) : (
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-secondary-light mb-2">Name</label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full p-2 rounded-lg bg-secondary-light text-primary"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-secondary-light mb-2">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full p-2 rounded-lg bg-secondary-light text-primary"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-secondary-light mb-2">Password</label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full p-2 rounded-lg bg-secondary-light text-primary"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-secondary-light mb-2">License Number</label>
+            <input
+              type="text"
+              name="license_number"
+              value={formData.license_number}
+              onChange={handleChange}
+              className="w-full p-2 rounded-lg bg-secondary-light text-primary"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-secondary-light mb-2">Specializations</label>
+            <input
+              type="text"
+              name="specializations"
+              value={formData.specializations}
+              onChange={handleChange}
+              className="w-full p-2 rounded-lg bg-secondary-light text-primary"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-secondary-light mb-2">Experience Years</label>
+            <input
+              type="number"
+              name="experience_years"
+              value={formData.experience_years}
+              onChange={handleChange}
+              className="w-full p-2 rounded-lg bg-secondary-light text-primary"
+            />
+          </div>
+          <button type="submit" className="bg-primary text-secondary px-4 py-2 rounded hover:bg-primary-light">
+            Update Profile
+          </button>
+        </form>
+      )}
+    </div>
+  );
+};
 
 export default LawyerDashboard;
