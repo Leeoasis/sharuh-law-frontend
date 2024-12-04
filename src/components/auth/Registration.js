@@ -3,6 +3,9 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { fetchreg } from '../../redux/auth/registerSlice';
+import Navbar from '../../components/Navbar'; 
+import Footer from '../../components/Footer';
+import RegisterBackground from '../../assets/Images/analysis.jpeg';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -61,47 +64,124 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col justify-center items-center">
-      <h1 className="text-3xl font-bold mb-4">Register</h1>
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-full max-w-md">
-        <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" required className="mb-4 p-2 w-full border rounded" />
-        <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Password" required className="mb-4 p-2 w-full border rounded" />
-        <input type="password" name="password_confirmation" value={formData.password_confirmation} onChange={handleChange} placeholder="Confirm Password" required className="mb-4 p-2 w-full border rounded" />
-        <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Name" required className="mb-4 p-2 w-full border rounded" />
-        <select name="role" value={formData.role} onChange={handleChange} className="mb-4 p-2 w-full border rounded">
-          <option value="client">Client</option>
-          <option value="lawyer">Lawyer</option>
-        </select>
+    <div className="bg-gray-50">
+      {/* Navbar */}
+      <Navbar />
 
-        {formData.role === 'lawyer' && (
-          <>
-            <input type="text" name="license_number" value={formData.license_number} onChange={handleChange} placeholder="License Number" className="mb-4 p-2 w-full border rounded" />
-            <textarea name="specializations" value={formData.specializations} onChange={handleChange} placeholder="Specializations" className="mb-4 p-2 w-full border rounded"></textarea>
-            <input type="number" name="experience_years" value={formData.experience_years} onChange={handleChange} placeholder="Experience Years" className="mb-4 p-2 w-full border rounded" />
-            {/* <textarea name="bio" value={formData.bio} onChange={handleChange} placeholder="Bio" className="mb-4 p-2 w-full border rounded"></textarea> */}
-            {/* <input type="text" name="languages" value={formData.languages} onChange={handleChange} placeholder="Languages" className="mb-4 p-2 w-full border rounded" /> */}
-            {/* <input type="number" name="hourly_rate" value={formData.hourly_rate} onChange={handleChange} placeholder="Hourly Rate" className="mb-4 p-2 w-full border rounded" /> */}
-            {/* <textarea name="office_address" value={formData.office_address} onChange={handleChange} placeholder="Office Address" className="mb-4 p-2 w-full border rounded"></textarea>
-            <input type="text" name="practice_state" value={formData.practice_state} onChange={handleChange} placeholder="Practice State" className="mb-4 p-2 w-full border rounded" />
-            <input type="number" name="average_rating" value={formData.average_rating} onChange={handleChange} placeholder="Average Rating" className="mb-4 p-2 w-full border rounded" />
-            <input type="number" name="review_count" value={formData.review_count} onChange={handleChange} placeholder="Review Count" className="mb-4 p-2 w-full border rounded" />
-            <textarea name="certifications" value={formData.certifications} onChange={handleChange} placeholder="Certifications" className="mb-4 p-2 w-full border rounded"></textarea>
-            <input type="checkbox" name="verification_status" checked={formData.verification_status} onChange={handleChange} className="mb-4 p-2 w-full border rounded" /> Verification Status */}
-            {/* <input type="text" name="portfolio_url" value={formData.portfolio_url} onChange={handleChange} placeholder="Portfolio URL" className="mb-4 p-2 w-full border rounded" /> */}
-          </>
-        )}
+      <div 
+        className="min-h-screen bg-cover bg-center flex flex-col justify-center items-center relative" 
+        style={{ backgroundImage: `url(${RegisterBackground})` }}
+      >
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black opacity-50 z-0"></div>
 
-        {formData.role === 'client' && (
-          <>
-            <input type="text" name="preferred_language" value={formData.preferred_language} onChange={handleChange} placeholder="Preferred Language" className="mb-4 p-2 w-full border rounded" />
-            <input type="text" name="budget" value={formData.budget} onChange={handleChange} placeholder="Budget" className="mb-4 p-2 w-full border rounded" />
-            {/* <input type="text" name="case_type" value={formData.case_type} onChange={handleChange} placeholder="Case Type" className="mb-4 p-2 w-full border rounded" /> */}
-            {/* <input type="number" name="current_case_id" value={formData.current_case_id} onChange={handleChange} placeholder="Current Case ID" className="mb-4 p-2 w-full border rounded" /> */}
-          </>
-        )}
+        <div className="bg-white bg-opacity-70 p-8 rounded-lg shadow-md w-full max-w-3xl z-10 mt-20 mb-12">
+          <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Create Your Account</h1>
+          <form onSubmit={handleSubmit}>
+            <input 
+              type="email" 
+              name="email" 
+              value={formData.email} 
+              onChange={handleChange} 
+              placeholder="Email" 
+              required 
+              className="mb-4 p-3 w-full border rounded focus:outline-none focus:ring-2 focus:ring-amber-500" 
+            />
+            <input 
+              type="password" 
+              name="password" 
+              value={formData.password} 
+              onChange={handleChange} 
+              placeholder="Password" 
+              required 
+              className="mb-4 p-3 w-full border rounded focus:outline-none focus:ring-2 focus:ring-amber-500" 
+            />
+            <input 
+              type="password" 
+              name="password_confirmation" 
+              value={formData.password_confirmation} 
+              onChange={handleChange} 
+              placeholder="Confirm Password" 
+              required 
+              className="mb-4 p-3 w-full border rounded focus:outline-none focus:ring-2 focus:ring-amber-500" 
+            />
+            <input 
+              type="text" 
+              name="name" 
+              value={formData.name} 
+              onChange={handleChange} 
+              placeholder="Full Name" 
+              required 
+              className="mb-4 p-3 w-full border rounded focus:outline-none focus:ring-2 focus:ring-amber-500" 
+            />
+            <select 
+              name="role" 
+              value={formData.role} 
+              onChange={handleChange} 
+              className="mb-4 p-3 w-full border rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+            >
+              <option value="client">Client</option>
+              <option value="lawyer">Lawyer</option>
+            </select>
 
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 w-full">Register</button>
-      </form>
+            {formData.role === 'lawyer' && (
+              <>
+                <input 
+                  type="text" 
+                  name="license_number" 
+                  value={formData.license_number} 
+                  onChange={handleChange} 
+                  placeholder="License Number" 
+                  className="mb-4 p-3 w-full border rounded focus:outline-none focus:ring-2 focus:ring-amber-500" 
+                />
+                <textarea 
+                  name="specializations" 
+                  value={formData.specializations} 
+                  onChange={handleChange} 
+                  placeholder="Specializations" 
+                  className="mb-4 p-3 w-full border rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+                ></textarea>
+                <input 
+                  type="number" 
+                  name="experience_years" 
+                  value={formData.experience_years} 
+                  onChange={handleChange} 
+                  placeholder="Years of Experience" 
+                  className="mb-4 p-3 w-full border rounded focus:outline-none focus:ring-2 focus:ring-amber-500" 
+                />
+              </>
+            )}
+
+            {formData.role === 'client' && (
+              <>
+                <input 
+                  type="text" 
+                  name="preferred_language" 
+                  value={formData.preferred_language} 
+                  onChange={handleChange} 
+                  placeholder="Preferred Language" 
+                  className="mb-4 p-3 w-full border rounded focus:outline-none focus:ring-2 focus:ring-amber-500" 
+                />
+                <input 
+                  type="text" 
+                  name="budget" 
+                  value={formData.budget} 
+                  onChange={handleChange} 
+                  placeholder="Budget" 
+                  className="mb-4 p-3 w-full border rounded focus:outline-none focus:ring-2 focus:ring-amber-500" 
+                />
+              </>
+            )}
+
+            <button type="submit" className="bg-amber-500 text-white p-3 w-full rounded mt-4 hover:bg-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500">
+              Register
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
