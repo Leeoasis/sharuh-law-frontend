@@ -10,7 +10,7 @@ import {
   faEnvelope,
   faPhone,
 } from '@fortawesome/free-solid-svg-icons';
-import Navbar from '../components/Navbar'; 
+import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MessageImage from '../assets/Images/messages.jpeg';
 
@@ -22,43 +22,43 @@ const Landing = () => {
 
       {/* Hero Section */}
       <div
-        className="relative min-h-screen flex items-center justify-center text-white bg-cover bg-center"
+        className="relative flex items-center justify-center h-[70vh] bg-cover bg-center"
         style={{ backgroundImage: `url(${MessageImage})` }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black opacity-50"></div>
-        <div className="relative z-10 text-center px-4">
-          <h1 className="text-5xl md:text-6xl font-bold text-amber-400 mb-4 animate-fade-in drop-shadow-md">
+        {/* Shadow Overlay */}
+        <div className="absolute inset-0 bg-black opacity-50"></div>
+
+        {/* Content */}
+        <div className="relative z-10 text-center px-6 py-8 max-w-3xl mx-auto">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-amber-500 drop-shadow-lg mb-4 animate-fade-in">
             Lawyer-Client Connect
           </h1>
-          <p className="text-lg md:text-2xl text-gray-300 mb-6 animate-slide-up">
+          <p className="text-lg md:text-xl text-gray-300 mb-6 animate-slide-up">
             Connecting you with trusted legal experts worldwide.
           </p>
-          <div className="flex flex-col md:flex-row gap-4 justify-center animate-fade-in-delay">
+          <div className="flex flex-wrap justify-center gap-4 animate-fade-in">
             <Link
               to="/register"
-              className="bg-amber-500 px-6 py-3 text-lg font-semibold rounded-full hover:bg-amber-400 transition duration-300 shadow-md"
+              className="bg-amber-500 px-6 py-3 text-lg font-semibold rounded-full hover:bg-amber-400 transition duration-300 shadow-lg"
             >
               <FontAwesomeIcon icon={faUserPlus} className="mr-2" />
               Sign Up
             </Link>
             <Link
               to="/login"
-              className="bg-gray-700 px-6 py-3 text-lg font-semibold rounded-full hover:bg-gray-600 transition duration-300 shadow-md"
+              className="bg-gray-700 px-6 py-3 text-lg font-semibold rounded-full hover:bg-gray-600 transition duration-300 shadow-lg"
             >
               <FontAwesomeIcon icon={faSignInAlt} className="mr-2" />
               Login
             </Link>
           </div>
         </div>
-        {/* Decorative Floating Elements */}
-        <div className="absolute bottom-20 left-1/4 bg-amber-500 h-6 w-6 rounded-full opacity-50 animate-bounce"></div>
-        <div className="absolute top-20 right-1/3 bg-gray-700 h-10 w-10 rounded-full opacity-30 animate-bounce-slow"></div>
       </div>
 
       {/* Why Choose Us Section */}
       <div className="bg-gray-800 text-white py-16 px-4">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-amber-400">Why Choose Us?</h2>
+          <h2 className="text-4xl font-bold text-amber-500">Why Choose Us?</h2>
           <p className="text-lg mt-4 text-gray-300">
             Discover why thousands of clients trust Lawyer-Client Connect.
           </p>
@@ -85,7 +85,7 @@ const Landing = () => {
       {/* Testimonials Section */}
       <div className="bg-gray-900 text-white py-16 px-4">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-amber-400">What Our Clients Say</h2>
+          <h2 className="text-4xl font-bold text-amber-500">What Our Clients Say</h2>
         </div>
         <div className="carousel max-w-5xl mx-auto">
           <div className="carousel-item p-6 bg-gray-800 rounded-lg shadow-lg text-center">
@@ -106,7 +106,7 @@ const Landing = () => {
       {/* Contact Section */}
       <div className="bg-gray-800 text-white py-16 px-4">
         <div className="text-center mb-8">
-          <h2 className="text-4xl font-bold text-amber-400">Contact Us</h2>
+          <h2 className="text-4xl font-bold text-amber-500">Contact Us</h2>
           <p className="text-lg mt-4 text-gray-300">
             Need help? Reach out to us today!
           </p>
