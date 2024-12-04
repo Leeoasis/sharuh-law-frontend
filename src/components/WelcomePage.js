@@ -12,7 +12,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import MessageImage from '../assets/Images/messages.jpeg';
+import MessageImage from '../assets/Images/analysis.jpeg';
 
 const Landing = () => {
   return (
