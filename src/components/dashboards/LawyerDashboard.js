@@ -4,7 +4,7 @@ import 'react-calendar/dist/Calendar.css';
 import ModalComponent from '../ModalComponent';
 import { FaSignOutAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import Footer from '../landingNav/Footer';
+import Footer from '../landingSite/Footer';
 
 const LawyerDashboard = () => {
   const [selectedOption, setSelectedOption] = useState('Client Management');

@@ -10,9 +10,9 @@ import {
   faEnvelope,
   faPhone,
 } from '@fortawesome/free-solid-svg-icons';
-import Navbar from './landingNav/Navbar';
-import Footer from './landingNav/Footer';
-import MessageImage from '../assets/Images/analysis.jpeg';
+import Navbar from './Navbar';
+import Footer from './Footer';
+import MessageImage from '../../assets/Images/analysis.jpeg';
 
 const Landing = () => {
   return (
