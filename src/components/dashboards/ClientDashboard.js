@@ -4,6 +4,7 @@ import 'react-calendar/dist/Calendar.css';
 import ModalComponent from '../ModalComponent';
 import { FaSignOutAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import Footer from '../landingNav/Footer';
 
 const ClientDashboard = () => {
   const [selectedOption, setSelectedOption] = useState('Case Management');
@@ -58,21 +59,17 @@ const ClientDashboard = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-secondary-light text-white">
-      <Sidebar selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
-      <div className="flex-1 p-4 lg:p-8">
-        <Header handleLogout={handleLogout} />
-        <div className="bg-secondary shadow-lg rounded-lg p-4 lg:p-6">
-          {renderContent()}
+    <div className="flex flex-col min-h-screen bg-secondary-light text-white">
+      <div className="flex flex-col lg:flex-row flex-grow">
+        <Sidebar selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+        <div className="flex-1 p-4 lg:p-8">
+          <Header handleLogout={handleLogout} />
+          <div className="bg-secondary shadow-lg rounded-lg p-4 lg:p-6 flex-grow">
+            {renderContent()}
+          </div>
         </div>
       </div>
-      <ModalComponent
-        isOpen={modalIsOpen}
-        onRequestClose={closeModal}
-        eventTitle={eventTitle}
-        setEventTitle={setEventTitle}
-        handleAddEvent={handleAddEvent}
-      />
+      <Footer />
     </div>
   );
 };
