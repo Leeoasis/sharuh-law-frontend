@@ -14,22 +14,41 @@ const Navbar = () => {
                 {/* Desktop Links */}
                 <div className="hidden md:flex space-x-8">
                     <Link
+                        to="/"
+                        className="hover:text-amber-400 transition duration-300 flex items-center"
+                    >
+                        Home
+                    </Link>
+                    <Link
                         to="/about"
-                        className="hover:text-amber-400 transition duration-300"
+                        className="hover:text-amber-400 transition duration-300 flex items-center"
                     >
                         About
                     </Link>
                     <Link
                         to="/services"
-                        className="hover:text-amber-400 transition duration-300"
+                        className="hover:text-amber-400 transition duration-300 flex items-center"
                     >
                         Services
                     </Link>
                     <Link
                         to="/contact"
-                        className="hover:text-amber-400 transition duration-300"
+                        className="hover:text-amber-400 transition duration-300 flex items-center"
                     >
                         Contact
+                    </Link>
+                    {/* Add Signup and Login buttons with matching style */}
+                    <Link
+                        to="/register"
+                        className="inline-block text-white hover:text-amber-400 transition duration-300 py-2 px-4 border border-transparent rounded flex items-center"
+                    >
+                        Sign Up
+                    </Link>
+                    <Link
+                        to="/login"
+                        className="inline-block text-white hover:text-amber-400 transition duration-300 py-2 px-4 border border-transparent rounded flex items-center"
+                    >
+                        Login
                     </Link>
                 </div>
                 {/* Hamburger Menu */}

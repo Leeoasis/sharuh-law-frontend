@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { fetchreg } from '../../redux/auth/registerSlice';
-import Navbar from '../../components/Navbar'; 
-import Footer from '../../components/Footer';
+import Navbar from '../landingNav/Navbar'; 
+import Footer from '../landingNav/Footer';
 import RegisterBackground from '../../assets/Images/analysis.jpeg';
 
 const Register = () => {
