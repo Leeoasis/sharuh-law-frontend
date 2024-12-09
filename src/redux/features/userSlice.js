@@ -77,6 +77,7 @@ const userSlice = createSlice({
         state.loading = false;
         state.profile = action.payload;
         state.successMessage = 'Profile updated successfully'; // Set success message
+        localStorage.setItem('data', JSON.stringify(action.payload)); // Update local storage
       })
       .addCase(updateProfile.rejected, (state, action) => {
         state.loading = false;

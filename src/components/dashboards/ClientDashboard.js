@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchLawyers, updateProfile } from '../../redux/features/userSlice';
+import { fetchLawyers, updateProfile, clearSuccessMessage } from '../../redux/features/userSlice';
 import ReactCalendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { FaSignOutAlt } from 'react-icons/fa';
@@ -15,13 +15,25 @@ const ClientDashboard = () => {
   const [eventTitle, setEventTitle] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { lawyers, profile, loading, error } = useSelector((state) => state.user);
+  const { lawyers, profile, loading, error, successMessage } = useSelector((state) => state.user);
 
   useEffect(() => {
     if (selectedOption === 'Find a Lawyer') {
       dispatch(fetchLawyers({}));
     }
   }, [selectedOption, dispatch]);
+
+  useEffect(() => {
+    console.log('Profile:', profile); // Check if profile is correctly populated
+  }, [profile]);
+
+  useEffect(() => {
+    if (successMessage) {
+      setTimeout(() => {
+        dispatch(clearSuccessMessage());
+      }, 3000); // Clear success message after 3 seconds
+    }
+  }, [successMessage, dispatch]);
 
   const openModal = () => setModalIsOpen(true);
   const closeModal = () => {
@@ -41,7 +53,15 @@ const ClientDashboard = () => {
   };
 
   const handleProfileUpdate = (profileData) => {
-    dispatch(updateProfile(profileData));
+    const id = profile.id; // Ensure profile.id contains the user's ID
+    console.log('User ID:', id); // Check if id is not undefined
+    console.log('Profile Data:', profileData); // Log profileData to check its structure
+    if (id) {
+      const formattedProfileData = { user: profileData }; // Nest profileData under 'user'
+      dispatch(updateProfile({ id, profileData: formattedProfileData }));
+    } else {
+      console.error('User ID is missing');
+    }
   };
 
   const renderContent = () => {
@@ -53,7 +73,7 @@ const ClientDashboard = () => {
         <LawyerSearchSection lawyers={lawyers} loading={loading} error={error} />
       ),
       'Profile': (
-        <ProfileSection profile={profile} onUpdate={handleProfileUpdate} loading={loading} error={error} />
+        <ProfileSection profile={profile} onUpdate={handleProfileUpdate} loading={loading} error={error} successMessage={successMessage} />
       ),
       'Notifications': (
         <ContentSection title="Notifications" description="Check your latest notifications." buttonText="View Notifications" />
@@ -173,7 +193,7 @@ const LawyerSearchSection = ({ lawyers, loading, error }) => (
   </div>
 );
 
-const ProfileSection = ({ profile, onUpdate, loading, error }) => {
+const ProfileSection = ({ profile, onUpdate, loading, error, successMessage }) => {
   const [formData, setFormData] = useState({
     name: profile.name || '',
     email: profile.email || '',
@@ -184,6 +204,34 @@ const ProfileSection = ({ profile, onUpdate, loading, error }) => {
     specializations: profile.specializations || '',
     experience_years: profile.experience_years || '',
   });
+
+  useEffect(() => {
+    setFormData({
+      name: profile.name || '',
+      email: profile.email || '',
+      password: '',
+      preferred_language: profile.preferred_language || '',
+      budget: profile.budget || '',
+      license_number: profile.license_number || '',
+      specializations: profile.specializations || '',
+      experience_years: profile.experience_years || '',
+    });
+  }, [profile]);
+
+  useEffect(() => {
+    if (successMessage) {
+      setFormData({
+        name: profile.name || '',
+        email: profile.email || '',
+        password: '',
+        preferred_language: profile.preferred_language || '',
+        budget: profile.budget || '',
+        license_number: profile.license_number || '',
+        specializations: profile.specializations || '',
+        experience_years: profile.experience_years || '',
+      });
+    }
+  }, [successMessage, profile]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -204,6 +252,7 @@ const ProfileSection = ({ profile, onUpdate, loading, error }) => {
         <p className="text-red-500">{error}</p>
       ) : (
         <form onSubmit={handleSubmit}>
+          {successMessage && <p className="text-green-500 mb-4">{successMessage}</p>}
           <div className="mb-4">
             <label className="block text-secondary-light mb-2">Name</label>
             <input

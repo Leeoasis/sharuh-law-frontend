@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchClients, updateProfile, clearSuccessMessage } from '../../redux/features/userSlice';
+import { fetchClients, fetchLawyers, updateProfile, clearSuccessMessage } from '../../redux/features/userSlice';
 import ReactCalendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import ModalComponent from '../ModalComponent';
@@ -23,6 +23,15 @@ const LawyerDashboard = () => {
       dispatch(fetchClients({}));
     }
   }, [selectedOption, dispatch]);
+
+  useEffect(() => {
+    // Fetch profile data when the component mounts
+    if (profile.role === 'client') {
+      dispatch(fetchClients({}));
+    } else if (profile.role === 'lawyer') {
+      dispatch(fetchLawyers({}));
+    }
+  }, [dispatch, profile.role]);
 
   useEffect(() => {
     console.log('Profile:', profile); // Check if profile is correctly populated
@@ -222,6 +231,21 @@ const ProfileSection = ({ profile, onUpdate, loading, error, successMessage }) =
       experience_years: profile.experience_years || '',
     });
   }, [profile]);
+
+  useEffect(() => {
+    if (successMessage) {
+      setFormData({
+        name: profile.name || '',
+        email: profile.email || '',
+        password: '',
+        preferred_language: profile.preferred_language || '',
+        budget: profile.budget || '',
+        license_number: profile.license_number || '',
+        specializations: profile.specializations || '',
+        experience_years: profile.experience_years || '',
+      });
+    }
+  }, [successMessage, profile]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
