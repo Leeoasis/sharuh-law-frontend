@@ -29,11 +29,11 @@ export const updateProfile = createAsyncThunk(
   }
 );
 
-// Async thunk for fetching user profile based on role
+// Async thunk for fetching user profile by role and ID
 export const fetchProfile = createAsyncThunk(
   'user/fetchProfile',
-  async (role) => {
-    const response = await axiosInstance.get(`/api/user/profile`, { params: role });
+  async ({ role, id }) => {
+    const response = await axiosInstance.get(`/api/user/profile/${role}/${id}`);
     return response.data;
   }
 );

@@ -26,9 +26,13 @@ const LawyerDashboard = () => {
   const { cases } = useSelector((state) => state.case);
 
   useEffect(() => {
-    // Fetch the user profile based on role when the component mounts
-    dispatch(fetchProfile({ role: 'lawyer' }));
-  }, [dispatch]);
+    // Fetch the user profile by role and ID when the component mounts
+    const userId = profile.id; // Get the actual user ID from the profile state
+    const userRole = profile.role; // Get the actual user role from the profile state
+    if (userId && userRole) {
+      dispatch(fetchProfile({ role: userRole, id: userId }));
+    }
+  }, [dispatch, profile.id, profile.role]);
 
   useEffect(() => {
     if (selectedOption === 'Client Management') {
@@ -38,9 +42,9 @@ const LawyerDashboard = () => {
       dispatch(fetchCases(profile.id));
     }
     if (selectedOption === 'Profile') {
-      dispatch(fetchProfile({ role: 'lawyer' }));
+      dispatch(fetchProfile({ role: profile.role, id: profile.id }));
     }
-  }, [selectedOption, dispatch, profile.id]);
+  }, [selectedOption, dispatch, profile.id, profile.role]);
 
   useEffect(() => {
     if (successMessage) {
