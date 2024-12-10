@@ -29,6 +29,15 @@ export const updateProfile = createAsyncThunk(
   }
 );
 
+// Async thunk for fetching user profile based on role
+export const fetchProfile = createAsyncThunk(
+  'user/fetchProfile',
+  async (role) => {
+    const response = await axiosInstance.get(`/api/user/profile`, { params: role });
+    return response.data;
+  }
+);
+
 const initialState = {
   lawyers: [],
   clients: [],
@@ -80,6 +89,17 @@ const userSlice = createSlice({
         localStorage.setItem('data', JSON.stringify(action.payload)); // Update local storage
       })
       .addCase(updateProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchProfile.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.profile = action.payload;
+      })
+      .addCase(fetchProfile.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

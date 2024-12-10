@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchLawyers, updateProfile, clearSuccessMessage } from '../../redux/features/userSlice';
+import { fetchLawyers, updateProfile, clearSuccessMessage, fetchProfile } from '../../redux/features/userSlice';
 import { fetchCases, createCase, updateCase, deleteCase } from '../../redux/features/caseSlice';
 import ModalComponent from '../ModalComponent';
 import { useNavigate } from 'react-router-dom';
@@ -26,11 +26,19 @@ const ClientDashboard = () => {
   const { cases } = useSelector((state) => state.case);
 
   useEffect(() => {
+    // Fetch the user profile based on role when the component mounts
+    dispatch(fetchProfile({ role: 'client' }));
+  }, [dispatch]);
+
+  useEffect(() => {
     if (selectedOption === 'Find a Lawyer') {
       dispatch(fetchLawyers({}));
     }
     if (selectedOption === 'Case Management') {
       dispatch(fetchCases(profile.id));
+    }
+    if (selectedOption === 'Profile') {
+      dispatch(fetchProfile({ role: 'client' }));
     }
   }, [selectedOption, dispatch, profile.id]);
 
@@ -38,7 +46,7 @@ const ClientDashboard = () => {
     if (successMessage) {
       setTimeout(() => {
         dispatch(clearSuccessMessage());
-      }, 3000); // Clear success message after 3 seconds
+      }, 3000);
     }
   }, [successMessage, dispatch]);
 
@@ -60,11 +68,9 @@ const ClientDashboard = () => {
   };
 
   const handleProfileUpdate = (profileData) => {
-    const id = profile.id; // Ensure profile.id contains the user's ID
-    console.log('User ID:', id); // Check if id is not undefined
-    console.log('Profile Data:', profileData); // Log profileData to check its structure
+    const id = profile.id;
     if (id) {
-      const formattedProfileData = { user: profileData }; // Nest profileData under 'user'
+      const formattedProfileData = { user: profileData };
       dispatch(updateProfile({ id, profileData: formattedProfileData }));
     } else {
       console.error('User ID is missing');

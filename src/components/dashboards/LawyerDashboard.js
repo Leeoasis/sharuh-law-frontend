@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchClients, fetchLawyers, updateProfile, clearSuccessMessage } from '../../redux/features/userSlice';
+import { fetchClients, fetchLawyers, updateProfile, clearSuccessMessage, fetchProfile } from '../../redux/features/userSlice';
 import { fetchCases, createCase, updateCase, deleteCase } from '../../redux/features/caseSlice';
 import ModalComponent from '../ModalComponent';
 import { useNavigate } from 'react-router-dom';
@@ -26,32 +26,27 @@ const LawyerDashboard = () => {
   const { cases } = useSelector((state) => state.case);
 
   useEffect(() => {
+    // Fetch the user profile based on role when the component mounts
+    dispatch(fetchProfile({ role: 'lawyer' }));
+  }, [dispatch]);
+
+  useEffect(() => {
     if (selectedOption === 'Client Management') {
       dispatch(fetchClients({}));
     }
     if (selectedOption === 'Case Management') {
       dispatch(fetchCases(profile.id));
     }
-  }, [selectedOption, dispatch, profile.id]);
-
-  useEffect(() => {
-    // Fetch profile data when the component mounts
-    if (profile.role === 'client') {
-      dispatch(fetchClients({}));
-    } else if (profile.role === 'lawyer') {
-      dispatch(fetchLawyers({}));
+    if (selectedOption === 'Profile') {
+      dispatch(fetchProfile({ role: 'lawyer' }));
     }
-  }, [dispatch, profile.role]);
-
-  useEffect(() => {
-    console.log('Profile:', profile); // Check if profile is correctly populated
-  }, [profile]);
+  }, [selectedOption, dispatch, profile.id]);
 
   useEffect(() => {
     if (successMessage) {
       setTimeout(() => {
         dispatch(clearSuccessMessage());
-      }, 3000); // Clear success message after 3 seconds
+      }, 3000);
     }
   }, [successMessage, dispatch]);
 
@@ -73,11 +68,9 @@ const LawyerDashboard = () => {
   };
 
   const handleProfileUpdate = (profileData) => {
-    const id = profile.id; // Ensure profile.id contains the user's ID
-    console.log('User ID:', id); // Check if id is not undefined
-    console.log('Profile Data:', profileData); // Log profileData to check its structure
+    const id = profile.id;
     if (id) {
-      const formattedProfileData = { user: profileData }; // Nest profileData under 'user'
+      const formattedProfileData = { user: profileData };
       dispatch(updateProfile({ id, profileData: formattedProfileData }));
     } else {
       console.error('User ID is missing');
