@@ -35,10 +35,6 @@ const ClientDashboard = () => {
   }, [selectedOption, dispatch, profile.id]);
 
   useEffect(() => {
-    console.log('Profile:', profile); // Check if profile is correctly populated
-  }, [profile]);
-
-  useEffect(() => {
     if (successMessage) {
       setTimeout(() => {
         dispatch(clearSuccessMessage());
