@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchClients, updateProfile } from '../../redux/features/userSlice';
+import { fetchClients, fetchLawyers, updateProfile, clearSuccessMessage } from '../../redux/features/userSlice';
 import ReactCalendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import ModalComponent from '../ModalComponent';
@@ -16,13 +16,34 @@ const LawyerDashboard = () => {
   const [eventTitle, setEventTitle] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { clients, profile, loading, error } = useSelector((state) => state.user);
+  const { clients, profile, loading, error, successMessage } = useSelector((state) => state.user);
 
   useEffect(() => {
     if (selectedOption === 'Client Management') {
       dispatch(fetchClients({}));
     }
   }, [selectedOption, dispatch]);
+
+  useEffect(() => {
+    // Fetch profile data when the component mounts
+    if (profile.role === 'client') {
+      dispatch(fetchClients({}));
+    } else if (profile.role === 'lawyer') {
+      dispatch(fetchLawyers({}));
+    }
+  }, [dispatch, profile.role]);
+
+  useEffect(() => {
+    console.log('Profile:', profile); // Check if profile is correctly populated
+  }, [profile]);
+
+  useEffect(() => {
+    if (successMessage) {
+      setTimeout(() => {
+        dispatch(clearSuccessMessage());
+      }, 3000); // Clear success message after 3 seconds
+    }
+  }, [successMessage, dispatch]);
 
   const openModal = () => setModalIsOpen(true);
   const closeModal = () => {
@@ -42,7 +63,15 @@ const LawyerDashboard = () => {
   };
 
   const handleProfileUpdate = (profileData) => {
-    dispatch(updateProfile(profileData));
+    const id = profile.id; // Ensure profile.id contains the user's ID
+    console.log('User ID:', id); // Check if id is not undefined
+    console.log('Profile Data:', profileData); // Log profileData to check its structure
+    if (id) {
+      const formattedProfileData = { user: profileData }; // Nest profileData under 'user'
+      dispatch(updateProfile({ id, profileData: formattedProfileData }));
+    } else {
+      console.error('User ID is missing');
+    }
   };
 
   const renderContent = () => {
@@ -54,7 +83,7 @@ const LawyerDashboard = () => {
         <ContentSection title="Case Management" description="Track and manage your cases." buttonText="View Cases" />
       ),
       'Profile': (
-        <ProfileSection profile={profile} onUpdate={handleProfileUpdate} loading={loading} error={error} />
+        <ProfileSection profile={profile} onUpdate={handleProfileUpdate} loading={loading} error={error} successMessage={successMessage} />
       ),
       'Notifications': (
         <ContentSection title="Notifications" description="Check your latest notifications." buttonText="View Notifications" />
@@ -178,7 +207,7 @@ const ClientManagementSection = ({ clients, loading, error }) => (
   </div>
 );
 
-const ProfileSection = ({ profile, onUpdate, loading, error }) => {
+const ProfileSection = ({ profile, onUpdate, loading, error, successMessage }) => {
   const [formData, setFormData] = useState({
     name: profile.name || '',
     email: profile.email || '',
@@ -189,6 +218,34 @@ const ProfileSection = ({ profile, onUpdate, loading, error }) => {
     specializations: profile.specializations || '',
     experience_years: profile.experience_years || '',
   });
+
+  useEffect(() => {
+    setFormData({
+      name: profile.name || '',
+      email: profile.email || '',
+      password: '',
+      preferred_language: profile.preferred_language || '',
+      budget: profile.budget || '',
+      license_number: profile.license_number || '',
+      specializations: profile.specializations || '',
+      experience_years: profile.experience_years || '',
+    });
+  }, [profile]);
+
+  useEffect(() => {
+    if (successMessage) {
+      setFormData({
+        name: profile.name || '',
+        email: profile.email || '',
+        password: '',
+        preferred_language: profile.preferred_language || '',
+        budget: profile.budget || '',
+        license_number: profile.license_number || '',
+        specializations: profile.specializations || '',
+        experience_years: profile.experience_years || '',
+      });
+    }
+  }, [successMessage, profile]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -209,6 +266,7 @@ const ProfileSection = ({ profile, onUpdate, loading, error }) => {
         <p className="text-red-500">{error}</p>
       ) : (
         <form onSubmit={handleSubmit}>
+          {successMessage && <p className="text-green-500 mb-4">{successMessage}</p>}
           <div className="mb-4">
             <label className="block text-secondary-light mb-2">Name</label>
             <input

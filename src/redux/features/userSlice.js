@@ -22,8 +22,8 @@ export const fetchClients = createAsyncThunk(
 // Async thunk for updating user profile
 export const updateProfile = createAsyncThunk(
   'user/updateProfile',
-  async (profileData) => {
-    const response = await axiosInstance.put('/api/user', profileData);
+  async ({ id, profileData }) => {
+    const response = await axiosInstance.put(`/api/user/${id}`, profileData);
     localStorage.setItem('data', JSON.stringify(response.data));
     return response.data;
   }
@@ -35,12 +35,17 @@ const initialState = {
   profile: JSON.parse(localStorage.getItem('data')) || {},
   loading: false,
   error: null,
+  successMessage: '', // Add successMessage to the initial state
 };
 
 const userSlice = createSlice({
   name: 'user',
   initialState,
-  reducers: {},
+  reducers: {
+    clearSuccessMessage: (state) => {
+      state.successMessage = '';
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchLawyers.pending, (state) => {
@@ -71,6 +76,8 @@ const userSlice = createSlice({
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.loading = false;
         state.profile = action.payload;
+        state.successMessage = 'Profile updated successfully'; // Set success message
+        localStorage.setItem('data', JSON.stringify(action.payload)); // Update local storage
       })
       .addCase(updateProfile.rejected, (state, action) => {
         state.loading = false;
@@ -78,5 +85,7 @@ const userSlice = createSlice({
       });
   },
 });
+
+export const { clearSuccessMessage } = userSlice.actions;
 
 export default userSlice.reducer;
