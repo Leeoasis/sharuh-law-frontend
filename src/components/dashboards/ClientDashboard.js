@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchLawyers, updateProfile, clearSuccessMessage } from '../../redux/features/userSlice';
+import { fetchCases, createCase, updateCase, deleteCase } from '../../redux/features/caseSlice';
 import ReactCalendar from 'react-calendar';
+import ModalComponent from '../ModalComponent'; 
 import 'react-calendar/dist/Calendar.css';
 import { FaSignOutAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
@@ -16,12 +18,16 @@ const ClientDashboard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { lawyers, profile, loading, error, successMessage } = useSelector((state) => state.user);
+  const { cases } = useSelector((state) => state.case);
 
   useEffect(() => {
     if (selectedOption === 'Find a Lawyer') {
       dispatch(fetchLawyers({}));
     }
-  }, [selectedOption, dispatch]);
+    if (selectedOption === 'Case Management') {
+      dispatch(fetchCases(profile.id));
+    }
+  }, [selectedOption, dispatch, profile.id]);
 
   useEffect(() => {
     console.log('Profile:', profile); // Check if profile is correctly populated
@@ -64,10 +70,22 @@ const ClientDashboard = () => {
     }
   };
 
+  const handleCaseCreate = (caseData) => {
+    dispatch(createCase({ userId: profile.id, caseData }));
+  };
+
+  const handleCaseUpdate = (caseId, caseData) => {
+    dispatch(updateCase({ userId: profile.id, caseId, caseData }));
+  };
+
+  const handleCaseDelete = (caseId) => {
+    dispatch(deleteCase({ userId: profile.id, caseId }));
+  };
+
   const renderContent = () => {
     const contentMap = {
       'Case Management': (
-        <ContentSection title="Case Management" description="View and manage your cases." buttonText="View Cases" />
+        <CaseManagementSection cases={cases} onCreate={handleCaseCreate} onUpdate={handleCaseUpdate} onDelete={handleCaseDelete} loading={loading} error={error} />
       ),
       'Find a Lawyer': (
         <LawyerSearchSection lawyers={lawyers} loading={loading} error={error} />
@@ -96,13 +114,20 @@ const ClientDashboard = () => {
       <div className="flex flex-col lg:flex-row flex-grow">
         <Sidebar selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
         <div className="flex-1 p-4 lg:p-8">
-          <Header handleLogout={handleLogout} />
+          <Header handleLogout={handleLogout} profile={profile} />
           <div className="bg-secondary shadow-lg rounded-lg p-4 lg:p-6 flex-grow">
             {renderContent()}
           </div>
         </div>
       </div>
       <Footer />
+      <ModalComponent
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        eventTitle={eventTitle}
+        setEventTitle={setEventTitle}
+        handleAddEvent={handleAddEvent}
+      />
     </div>
   );
 };
@@ -124,12 +149,14 @@ const Sidebar = ({ selectedOption, setSelectedOption }) => (
   </div>
 );
 
-const Header = ({ handleLogout }) => (
+const Header = ({ handleLogout, profile }) => (
   <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 lg:mb-8">
     <h1 className="text-4xl font-bold text-primary mb-4 lg:mb-0">Client Dashboard</h1>
     <div className="flex items-center space-x-4">
-      <span className="text-lg">Welcome, Client</span>
-      <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center text-primary font-bold">C</div>
+      <span className="text-lg">Welcome, {profile.name}</span>
+      <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center text-primary font-bold">
+        {profile.name ? profile.name.charAt(0) : 'C'}
+      </div>
       <button onClick={handleLogout} className="flex items-center bg-primary text-secondary px-4 py-2 rounded hover:bg-primary-light">
         <FaSignOutAlt className="mr-2" /> Logout
       </button>
@@ -345,6 +372,86 @@ const ProfileSection = ({ profile, onUpdate, loading, error, successMessage }) =
             Update Profile
           </button>
         </form>
+      )}
+    </div>
+  );
+};
+
+const CaseManagementSection = ({ cases, onCreate, onUpdate, onDelete, loading, error }) => {
+  const [caseData, setCaseData] = useState({ title: '', description: '', lawyer_id: '' });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setCaseData({ ...caseData, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onCreate(caseData);
+    setCaseData({ title: '', description: '', lawyer_id: '' });
+  };
+
+  return (
+    <div>
+      <h2 className="text-2xl font-semibold text-primary-light mb-4">Case Management</h2>
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
+      ) : (
+        <div>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label className="block text-secondary-light mb-2">Title</label>
+              <input
+                type="text"
+                name="title"
+                value={caseData.title}
+                onChange={handleChange}
+                className="w-full p-2 rounded-lg bg-secondary-light text-primary"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-secondary-light mb-2">Description</label>
+              <textarea
+                name="description"
+                value={caseData.description}
+                onChange={handleChange}
+                className="w-full p-2 rounded-lg bg-secondary-light text-primary"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-secondary-light mb-2">Lawyer ID</label>
+              <input
+                type="text"
+                name="lawyer_id"
+                value={caseData.lawyer_id}
+                onChange={handleChange}
+                className="w-full p-2 rounded-lg bg-secondary-light text-primary"
+              />
+            </div>
+            <button type="submit" className="bg-primary text-secondary px-4 py-2 rounded hover:bg-primary-light">
+              Create Case
+            </button>
+          </form>
+          <ul className="mt-4">
+            {cases.map((caseItem) => (
+              <li key={caseItem.id} className="mb-2">
+                <div className="bg-secondary-light p-4 rounded-lg shadow-lg">
+                  <h3 className="text-xl font-bold text-primary">{caseItem.title}</h3>
+                  <p className="text-white">{caseItem.description}</p>
+                  <p className="text-white">Lawyer ID: {caseItem.lawyer_id}</p>
+                  <button onClick={() => onUpdate(caseItem.id, caseData)} className="bg-primary text-secondary px-4 py-2 rounded hover:bg-primary-light">
+                    Update
+                  </button>
+                  <button onClick={() => onDelete(caseItem.id)} className="bg-red-500 text-secondary px-4 py-2 rounded hover:bg-red-700 ml-2">
+                    Delete
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );
