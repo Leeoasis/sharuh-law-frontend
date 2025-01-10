@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchLawyers, updateProfile, clearSuccessMessage, fetchProfile } from '../../redux/features/userSlice';
+import { updateProfile, clearSuccessMessage, fetchProfile } from '../../redux/features/userSlice';
 import { fetchCases, createCase, updateCase, deleteCase } from '../../redux/features/caseSlice';
 import ModalComponent from '../ModalComponent';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +10,6 @@ import Header from '../dashboards/features/client/Header';
 import ContentSection from '../dashboards/features/client/ContentSection';
 import CalendarSection from '../dashboards/features/client/CalenderSection';
 import WelcomeSection from '../dashboards/features/client/WelcomeSection';
-import LawyerSearchSection from '../dashboards/features/client/LawyerSearchSection';
 import ProfileSection from '../dashboards/features/client/ProfileSection';
 import CaseManagementSection from '../dashboards/features/client/CaseManagementSection';
 
@@ -22,7 +21,7 @@ const ClientDashboard = () => {
   const [eventTitle, setEventTitle] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { lawyers, profile, loading, error, successMessage } = useSelector((state) => state.user);
+  const { profile, loading, error, successMessage } = useSelector((state) => state.user);
   const { cases } = useSelector((state) => state.case);
 
   useEffect(() => {
@@ -35,9 +34,6 @@ const ClientDashboard = () => {
   }, [dispatch, profile.id, profile.role]);
 
   useEffect(() => {
-    if (selectedOption === 'Find a Lawyer') {
-      dispatch(fetchLawyers({}));
-    }
     if (selectedOption === 'Case Management') {
       dispatch(fetchCases(profile.id));
     }
@@ -97,9 +93,6 @@ const ClientDashboard = () => {
     const contentMap = {
       'Case Management': (
         <CaseManagementSection cases={cases} onCreate={handleCaseCreate} onUpdate={handleCaseUpdate} onDelete={handleCaseDelete} loading={loading} error={error} />
-      ),
-      'Find a Lawyer': (
-        <LawyerSearchSection lawyers={lawyers} loading={loading} error={error} />
       ),
       'Profile': (
         <ProfileSection profile={profile} onUpdate={handleProfileUpdate} loading={loading} error={error} successMessage={successMessage} />
