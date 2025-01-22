@@ -14,10 +14,11 @@ export const fetchCases = createAsyncThunk(
 export const createCase = createAsyncThunk(
   'case/createCase',
   async ({ userId, caseData }) => {
-    const response = await axiosInstance.post(`/cases?user_id=${userId}`, caseData);
+    const response = await axiosInstance.post(`/users/${userId}/cases`, caseData);
     return response.data;
   }
 );
+
 
 // Async thunk for updating a case
 export const updateCase = createAsyncThunk(

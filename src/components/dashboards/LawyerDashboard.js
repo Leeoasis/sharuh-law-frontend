@@ -26,9 +26,8 @@ const LawyerDashboard = () => {
   const { cases } = useSelector((state) => state.case);
 
   useEffect(() => {
-    // Fetch the user profile by role and ID when the component mounts
-    const userId = profile.id; // Get the actual user ID from the profile state
-    const userRole = profile.role; // Get the actual user role from the profile state
+    const userId = profile.id;
+    const userRole = profile.role;
     if (userId && userRole) {
       dispatch(fetchProfile({ role: userRole, id: userId }));
     }

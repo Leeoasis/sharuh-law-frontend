@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 
+const courts = ["Supreme Court", "High Court", "Magistrate Court", "Family Court", "Commercial Court"];
+
 const CaseManagementSection = ({ cases, onCreate, onUpdate, onDelete, loading, error }) => {
-  const [caseData, setCaseData] = useState({ title: '', description: '', lawyer_id: '' });
+  const [caseData, setCaseData] = useState({ title: '', description: '', court: '' });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -11,12 +13,12 @@ const CaseManagementSection = ({ cases, onCreate, onUpdate, onDelete, loading, e
   const handleSubmit = (e) => {
     e.preventDefault();
     onCreate(caseData);
-    setCaseData({ title: '', description: '', lawyer_id: '' });
+    setCaseData({ title: '', description: '', court: '' });
   };
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold text-primary-light mb-4">Case Management</h2>
+      <h2 className="text-2xl font-semibold text-primary-light mb-4">Describe Your Case</h2>
       {loading ? (
         <p>Loading...</p>
       ) : error ? (
@@ -44,14 +46,18 @@ const CaseManagementSection = ({ cases, onCreate, onUpdate, onDelete, loading, e
               />
             </div>
             <div className="mb-4">
-              <label className="block text-secondary-light mb-2">Lawyer ID</label>
-              <input
-                type="text"
-                name="lawyer_id"
-                value={caseData.lawyer_id}
+              <label className="block text-secondary-light mb-2">Court</label>
+              <select
+                name="court"
+                value={caseData.court}
                 onChange={handleChange}
                 className="w-full p-2 rounded-lg bg-secondary-light text-primary"
-              />
+              >
+                <option value="">Select Court</option>
+                {courts.map((court, index) => (
+                  <option key={index} value={court}>{court}</option>
+                ))}
+              </select>
             </div>
             <button type="submit" className="bg-primary text-secondary px-4 py-2 rounded hover:bg-primary-light">
               Create Case
@@ -63,7 +69,7 @@ const CaseManagementSection = ({ cases, onCreate, onUpdate, onDelete, loading, e
                 <div className="bg-secondary-light p-4 rounded-lg shadow-lg">
                   <h3 className="text-xl font-bold text-primary">{caseItem.title}</h3>
                   <p className="text-white">{caseItem.description}</p>
-                  <p className="text-white">Lawyer ID: {caseItem.lawyer_id}</p>
+                  <p className="text-white">Court: {caseItem.court}</p>
                   <button onClick={() => onUpdate(caseItem.id, caseData)} className="bg-primary text-secondary px-4 py-2 rounded hover:bg-primary-light">
                     Update
                   </button>

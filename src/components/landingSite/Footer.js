@@ -1,15 +1,15 @@
 import React from "react";
-import { Link } from "react-router-dom"; // Import Link from react-router-dom
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"; // Import FontAwesomeIcon
+import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faEnvelope,
     faPhone,
-} from "@fortawesome/free-solid-svg-icons"; // Import specific solid icons
+} from "@fortawesome/free-solid-svg-icons";
 import {
     faFacebookF,
     faTwitter,
     faLinkedinIn,
-} from "@fortawesome/free-brands-svg-icons"; // Import specific brand icons
+} from "@fortawesome/free-brands-svg-icons";
 
 const Footer = () => {
     return (
