@@ -1,4 +1,3 @@
-// src/components/Register.js
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +6,9 @@ import Navbar from '../landingSite/Navbar';
 import Footer from '../landingSite/Footer';
 import RegisterBackground from '../../assets/Images/analysis.jpeg';
 
+const courts = ["Supreme Court", "High Court", "Magistrate Court", "Family Court", "Commercial Court"];
+const expertiseAreas = ["Criminal Law", "Family Law", "Corporate Law", "Intellectual Property", "Labor Law"];
+
 const Register = () => {
   const [formData, setFormData] = useState({
     email: '',
@@ -14,23 +16,15 @@ const Register = () => {
     password_confirmation: '',
     name: '',
     role: 'client', // default role
-    // phone_number: '',
     // profile_picture: '',
     // address: '',
     // Lawyer-specific fields
+    preferred_court: '',
     license_number: '',
-    specializations: '',
+    areas_of_expertise: '',
     experience_years: '',
     // bio: '',
-    // languages: '',
-    // hourly_rate: '',
-    // office_address: '',
-    // practice_state: '',
-    // average_rating: '',
-    // review_count: '',
-    // certifications: '',
-    // verification_status: false,
-    // portfolio_url: '',
+    rate: '',
     // Client-specific fields
     preferred_language: '',
     budget: '',
@@ -134,13 +128,25 @@ const Register = () => {
                   placeholder="License Number" 
                   className="mb-4 p-3 w-full border rounded focus:outline-none focus:ring-2 focus:ring-amber-500" 
                 />
-                <textarea 
-                  name="specializations" 
-                  value={formData.specializations} 
+                <input 
+                  type="text" 
+                  name="rate"
+                  value={formData.rate}
                   onChange={handleChange} 
-                  placeholder="Specializations" 
+                  placeholder="Rate" 
+                  className="mb-4 p-3 w-full border rounded focus:outline-none focus:ring-2 focus:ring-amber-500" 
+                />
+                <select 
+                  name="areas_of_expertise"
+                  value={formData.areas_of_expertise}
+                  onChange={handleChange} 
                   className="mb-4 p-3 w-full border rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
-                ></textarea>
+                >
+                  <option value="">Select Area of Expertise</option>
+                  {expertiseAreas.map((area, index) => (
+                    <option key={index} value={area}>{area}</option>
+                  ))}
+                </select>
                 <input 
                   type="number" 
                   name="experience_years" 
@@ -149,6 +155,17 @@ const Register = () => {
                   placeholder="Years of Experience" 
                   className="mb-4 p-3 w-full border rounded focus:outline-none focus:ring-2 focus:ring-amber-500" 
                 />
+                <select 
+                  name="preferred_court" 
+                  value={formData.preferred_court} 
+                  onChange={handleChange} 
+                  className="mb-4 p-3 w-full border rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+                >
+                  <option value="">Select Preferred Court</option>
+                  {courts.map((court, index) => (
+                    <option key={index} value={court}>{court}</option>
+                  ))}
+                </select>
               </>
             )}
 

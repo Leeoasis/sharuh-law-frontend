@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 
 const courts = ["Supreme Court", "High Court", "Magistrate Court", "Family Court", "Commercial Court"];
+const caseTypes = ["Criminal", "Family", "Corporate", "Intellectual Property", "Labor"];
 
 const CaseManagementSection = ({ cases, onCreate, onUpdate, onDelete, loading, error }) => {
-  const [caseData, setCaseData] = useState({ title: '', description: '', court: '' });
+  const [caseData, setCaseData] = useState({ title: '', description: '', court: '', budget: '', caseType: '' });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -13,7 +14,7 @@ const CaseManagementSection = ({ cases, onCreate, onUpdate, onDelete, loading, e
   const handleSubmit = (e) => {
     e.preventDefault();
     onCreate(caseData);
-    setCaseData({ title: '', description: '', court: '' });
+    setCaseData({ title: '', description: '', court: '', budget: '', caseType: '' });
   };
 
   return (
@@ -46,7 +47,7 @@ const CaseManagementSection = ({ cases, onCreate, onUpdate, onDelete, loading, e
               />
             </div>
             <div className="mb-4">
-              <label className="block text-secondary-light mb-2">Court</label>
+              <label className="block text-secondary-light mb-2">Preferred Court</label>
               <select
                 name="court"
                 value={caseData.court}
@@ -56,6 +57,30 @@ const CaseManagementSection = ({ cases, onCreate, onUpdate, onDelete, loading, e
                 <option value="">Select Court</option>
                 {courts.map((court, index) => (
                   <option key={index} value={court}>{court}</option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-4">
+              <label className="block text-secondary-light mb-2">Budget</label>
+              <input
+                type="number"
+                name="budget"
+                value={caseData.budget}
+                onChange={handleChange}
+                className="w-full p-2 rounded-lg bg-secondary-light text-primary"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-secondary-light mb-2">Case Type</label>
+              <select
+                name="caseType"
+                value={caseData.caseType}
+                onChange={handleChange}
+                className="w-full p-2 rounded-lg bg-secondary-light text-primary"
+              >
+                <option value="">Select Case Type</option>
+                {caseTypes.map((type, index) => (
+                  <option key={index} value={type}>{type}</option>
                 ))}
               </select>
             </div>

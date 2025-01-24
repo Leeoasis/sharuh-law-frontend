@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateProfile, clearSuccessMessage, fetchProfile } from "../../redux/features/userSlice";
 import { fetchCases, createCase, updateCase, deleteCase } from "../../redux/features/caseSlice";
-import  SubscribeToNotifications  from "../dashboards/features/lawyer/Notifications";
+import SubscribeToNotifications from "../dashboards/features/lawyer/Notifications";
 import ModalComponent from "../ModalComponent";
 import { useNavigate } from "react-router-dom";
 import Footer from "../landingSite/Footer";
@@ -20,7 +20,7 @@ const ClientDashboard = () => {
   const [events, setEvents] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [eventTitle, setEventTitle] = useState("");
-  const [notifications, setNotifications] = useState([]); // State for notifications
+  const [notifications, setNotifications] = useState([]);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -91,7 +91,15 @@ const ClientDashboard = () => {
   };
 
   const handleCaseCreate = (caseData) => {
-    dispatch(createCase({ userId: profile.id, caseData }));
+    dispatch(createCase({ userId: profile.id, caseData }))
+      .then((response) => {
+        if (response.payload.message) {
+          alert(response.payload.message);
+        }
+      })
+      .catch((error) => {
+        console.error("Error creating case:", error);
+      });
   };
 
   const handleCaseUpdate = (caseId, caseData) => {
