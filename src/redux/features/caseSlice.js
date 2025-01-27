@@ -19,7 +19,6 @@ export const createCase = createAsyncThunk(
   }
 );
 
-
 // Async thunk for updating a case
 export const updateCase = createAsyncThunk(
   'case/updateCase',
