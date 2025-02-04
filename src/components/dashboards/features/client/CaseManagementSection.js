@@ -1,50 +1,29 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { createCase } from '../../../../redux/features/caseSlice';
 
 const courts = ["Supreme Court", "High Court", "Magistrate Court", "Family Court", "Commercial Court"];
 const caseTypes = ["Criminal Law", "Family Law", "Corporate Law", "Intellectual Property", "Labor Law"];
 
-const CaseManagementSection = ({ userId, cases, onCreate, onUpdate, onDelete, loading, error }) => {
+const CaseManagementSection = ({ userId, cases, onUpdate, onDelete, loading, error }) => {
   const [caseData, setCaseData] = useState({ title: '', description: '', preferred_court: '', budget: '', areas_of_expertise: '' });
   const [matchingLawyers, setMatchingLawyers] = useState([]);
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setCaseData({ ...caseData, [name]: value });
   };
 
-  const handleCheckLawyers = async (e) => {
+  const handleCreateCase = (e) => {
     e.preventDefault();
-    const response = await fetch(`/users/${userId}/cases/check_lawyers`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(caseData),
-    });
-    const result = await response.json();
-    if (result.lawyers) {
-      setMatchingLawyers(result.lawyers);
-    } else {
-      alert(result.message);
+    if (!userId) {
+      alert("User ID is missing");
+      return;
     }
-  };
-
-  const handleCreateCase = async (lawyerId) => {
-    const response = await fetch(`/users/${userId}/cases`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ ...caseData, lawyer_id: lawyerId }),
-    });
-    const result = await response.json();
-    if (response.ok) {
-      onCreate(result);
-      setCaseData({ title: '', description: '', preferred_court: '', budget: '', areas_of_expertise: '' });
-      setMatchingLawyers([]);
-    } else {
-      alert(result.message);
-    }
+    dispatch(createCase({ userId, caseData }));
+    setCaseData({ title: '', description: '', preferred_court: '', budget: '', areas_of_expertise: '' });
+    setMatchingLawyers([]);
   };
 
   return (
@@ -56,7 +35,7 @@ const CaseManagementSection = ({ userId, cases, onCreate, onUpdate, onDelete, lo
         <p className="text-red-500">{error}</p>
       ) : (
         <div>
-          <form onSubmit={handleCheckLawyers}>
+          <form onSubmit={handleCreateCase}>
             <div className="mb-4">
               <label className="block text-secondary-light mb-2">Title</label>
               <input
@@ -115,7 +94,7 @@ const CaseManagementSection = ({ userId, cases, onCreate, onUpdate, onDelete, lo
               </select>
             </div>
             <button type="submit" className="bg-primary text-secondary px-4 py-2 rounded hover:bg-primary-light">
-              Check Lawyers
+              Create Case
             </button>
           </form>
           {matchingLawyers.length > 0 && (
