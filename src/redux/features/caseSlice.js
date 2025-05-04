@@ -1,7 +1,19 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '../../api/axiosInstance';
 
-// Async thunk for fetching cases
+// ✅ Create a case (fixes wrong route)
+export const createCase = createAsyncThunk(
+  'case/createCase',
+  async ({ userId, caseData }) => {
+    const response = await axiosInstance.post('/cases', {
+      user_id: userId,
+      case: caseData,
+    });
+    return response.data.case; // assume backend responds with { message, case }
+  }
+);
+
+// ✅ Fetch cases
 export const fetchCases = createAsyncThunk(
   'case/fetchCases',
   async (userId) => {
@@ -10,26 +22,18 @@ export const fetchCases = createAsyncThunk(
   }
 );
 
-// Async thunk for creating a case
-export const createCase = createAsyncThunk(
-  'case/createCase',
-  async ({ userId, caseData }) => {
-    const response = await axiosInstance.post(`/users/${userId}/cases`, caseData);
-    return response.data;
-  }
-);
-
-
-// Async thunk for updating a case
+// ✅ Update case
 export const updateCase = createAsyncThunk(
   'case/updateCase',
   async ({ userId, caseId, caseData }) => {
-    const response = await axiosInstance.put(`/cases/${caseId}?user_id=${userId}`, caseData);
+    const response = await axiosInstance.put(`/cases/${caseId}?user_id=${userId}`, {
+      case: caseData,
+    });
     return response.data;
   }
 );
 
-// Async thunk for deleting a case
+// ✅ Delete case
 export const deleteCase = createAsyncThunk(
   'case/deleteCase',
   async ({ userId, caseId }) => {
@@ -38,15 +42,13 @@ export const deleteCase = createAsyncThunk(
   }
 );
 
-const initialState = {
-  cases: [],
-  loading: false,
-  error: null,
-};
-
 const caseSlice = createSlice({
   name: 'case',
-  initialState,
+  initialState: {
+    cases: [],
+    loading: false,
+    error: null,
+  },
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -61,6 +63,7 @@ const caseSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
+
       .addCase(createCase.pending, (state) => {
         state.loading = true;
       })
@@ -72,26 +75,26 @@ const caseSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
+
       .addCase(updateCase.pending, (state) => {
         state.loading = true;
       })
       .addCase(updateCase.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.cases.findIndex((c) => c.id === action.payload.id);
-        if (index !== -1) {
-          state.cases[index] = action.payload;
-        }
+        const index = state.cases.findIndex(c => c.id === action.payload.id);
+        if (index !== -1) state.cases[index] = action.payload;
       })
       .addCase(updateCase.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
+
       .addCase(deleteCase.pending, (state) => {
         state.loading = true;
       })
       .addCase(deleteCase.fulfilled, (state, action) => {
         state.loading = false;
-        state.cases = state.cases.filter((c) => c.id !== action.payload);
+        state.cases = state.cases.filter(c => c.id !== action.payload);
       })
       .addCase(deleteCase.rejected, (state, action) => {
         state.loading = false;

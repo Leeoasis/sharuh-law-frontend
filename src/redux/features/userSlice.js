@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '../../api/axiosInstance';
 
-// Async thunk for fetching lawyers
+// Fetch lawyers based on criteria
 export const fetchLawyers = createAsyncThunk(
   'user/fetchLawyers',
   async (criteria) => {
@@ -10,16 +10,18 @@ export const fetchLawyers = createAsyncThunk(
   }
 );
 
-// Async thunk for fetching clients
+// Fetch clients — either all or only assigned to a specific lawyer
 export const fetchClients = createAsyncThunk(
   'user/fetchClients',
-  async (criteria) => {
-    const response = await axiosInstance.get('/api/clients', { params: criteria });
+  async (criteria = {}) => {
+    const { lawyer_id } = criteria;
+    const url = lawyer_id ? `/api/lawyer/${lawyer_id}/clients` : '/api/clients';
+    const response = await axiosInstance.get(url);
     return response.data;
   }
 );
 
-// Async thunk for updating user profile
+// Update user profile
 export const updateProfile = createAsyncThunk(
   'user/updateProfile',
   async ({ id, profileData }) => {
@@ -29,7 +31,7 @@ export const updateProfile = createAsyncThunk(
   }
 );
 
-// Async thunk for fetching user profile by role and ID
+// Fetch user profile
 export const fetchProfile = createAsyncThunk(
   'user/fetchProfile',
   async ({ role, id }) => {
@@ -38,13 +40,31 @@ export const fetchProfile = createAsyncThunk(
   }
 );
 
+// Fetch notifications for a user
+export const fetchNotifications = createAsyncThunk(
+  'user/fetchNotifications',
+  async (userId) => {
+    const response = await axiosInstance.get(`/api/notifications/${userId}`);
+    return response.data;
+  }
+);
+
+// Rehydrate user from localStorage
+export const rehydrateUser = createAsyncThunk(
+  'user/rehydrateUser',
+  async () => {
+    return JSON.parse(localStorage.getItem('data'));
+  }
+);
+
 const initialState = {
   lawyers: [],
   clients: [],
   profile: JSON.parse(localStorage.getItem('data')) || {},
+  notifications: [],
   loading: false,
   error: null,
-  successMessage: '', // Add successMessage to the initial state
+  successMessage: '',
 };
 
 const userSlice = createSlice({
@@ -57,55 +77,47 @@ const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchLawyers.pending, (state) => {
-        state.loading = true;
-      })
       .addCase(fetchLawyers.fulfilled, (state, action) => {
-        state.loading = false;
         state.lawyers = action.payload;
       })
-      .addCase(fetchLawyers.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-      })
-      .addCase(fetchClients.pending, (state) => {
-        state.loading = true;
-      })
       .addCase(fetchClients.fulfilled, (state, action) => {
-        state.loading = false;
         state.clients = action.payload;
       })
-      .addCase(fetchClients.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-      })
-      .addCase(updateProfile.pending, (state) => {
-        state.loading = true;
-      })
       .addCase(updateProfile.fulfilled, (state, action) => {
-        state.loading = false;
         state.profile = action.payload;
-        state.successMessage = 'Profile updated successfully'; // Set success message
-        localStorage.setItem('data', JSON.stringify(action.payload)); // Update local storage
-      })
-      .addCase(updateProfile.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-      })
-      .addCase(fetchProfile.pending, (state) => {
-        state.loading = true;
+        state.successMessage = 'Profile updated successfully';
       })
       .addCase(fetchProfile.fulfilled, (state, action) => {
-        state.loading = false;
         state.profile = action.payload;
       })
-      .addCase(fetchProfile.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-      });
+      .addCase(fetchNotifications.fulfilled, (state, action) => {
+        state.notifications = action.payload;
+      })
+      .addCase(rehydrateUser.fulfilled, (state, action) => {
+        state.profile = action.payload;
+      })
+      .addMatcher(
+        (action) => action.type.startsWith('user/') && action.type.endsWith('/pending'),
+        (state) => {
+          state.loading = true;
+          state.error = null;
+        }
+      )
+      .addMatcher(
+        (action) => action.type.startsWith('user/') && action.type.endsWith('/rejected'),
+        (state, action) => {
+          state.loading = false;
+          state.error = action.error.message;
+        }
+      )
+      .addMatcher(
+        (action) => action.type.startsWith('user/') && action.type.endsWith('/fulfilled'),
+        (state) => {
+          state.loading = false;
+        }
+      );
   },
 });
 
 export const { clearSuccessMessage } = userSlice.actions;
-
 export default userSlice.reducer;

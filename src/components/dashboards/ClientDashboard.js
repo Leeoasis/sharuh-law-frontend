@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { updateProfile, clearSuccessMessage, fetchProfile } from "../../redux/features/userSlice";
-import { fetchCases, createCase, updateCase, deleteCase } from "../../redux/features/caseSlice";
+import {
+  updateProfile,
+  clearSuccessMessage,
+  fetchProfile,
+  rehydrateUser,
+} from "../../redux/features/userSlice";
+import {
+  fetchCases,
+  createCase,
+  updateCase,
+  deleteCase,
+} from "../../redux/features/caseSlice";
 import SubscribeToNotifications from "../dashboards/features/lawyer/Notifications";
 import ModalComponent from "../ModalComponent";
 import { useNavigate } from "react-router-dom";
@@ -24,25 +34,26 @@ const ClientDashboard = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { profile, loading, error, successMessage } = useSelector((state) => state.user);
+  const { profile, loading, error, successMessage } = useSelector(
+    (state) => state.user
+  );
   const { cases } = useSelector((state) => state.case);
 
+  // ✅ Rehydrate user from localStorage on first load
   useEffect(() => {
-    const userId = profile.id;
-    const userRole = profile.role;
-    if (userId && userRole) {
-      dispatch(fetchProfile({ role: userRole, id: userId }));
-    }
-  }, [dispatch, profile.id, profile.role]);
+    dispatch(rehydrateUser());
+  }, [dispatch]);
 
+  // ✅ Fetch profile and cases when profile is ready
   useEffect(() => {
+    if (!profile?.id) return;
+
+    dispatch(fetchProfile({ role: profile.role, id: profile.id }));
+
     if (selectedOption === "Case Management") {
       dispatch(fetchCases(profile.id));
     }
-    if (selectedOption === "Profile") {
-      dispatch(fetchProfile({ role: profile.role, id: profile.id }));
-    }
-  }, [selectedOption, dispatch, profile.id, profile.role]);
+  }, [dispatch, profile?.id, profile?.role, selectedOption]);
 
   useEffect(() => {
     if (successMessage) {
@@ -52,7 +63,6 @@ const ClientDashboard = () => {
     }
   }, [successMessage, dispatch]);
 
-  // Subscribe to real-time notifications
   useEffect(() => {
     if (profile?.id) {
       const subscription = SubscribeToNotifications(profile.id, (notification) => {
@@ -77,17 +87,15 @@ const ClientDashboard = () => {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("data");
+    localStorage.removeItem("token");
     navigate("/");
   };
 
   const handleProfileUpdate = (profileData) => {
-    const id = profile.id;
-    if (id) {
-      const formattedProfileData = { user: profileData };
-      dispatch(updateProfile({ id, profileData: formattedProfileData }));
-    } else {
-      console.error("User ID is missing");
-    }
+    if (!profile?.id) return;
+    const formattedProfileData = { user: profileData };
+    dispatch(updateProfile({ id: profile.id, profileData: formattedProfileData }));
   };
 
   const handleCaseCreate = (caseData) => {
@@ -122,10 +130,16 @@ const ClientDashboard = () => {
           error={error}
         />
       ),
-      "Profile": (
-        <ProfileSection profile={profile} onUpdate={handleProfileUpdate} loading={loading} error={error} successMessage={successMessage} />
+      Profile: (
+        <ProfileSection
+          profile={profile}
+          onUpdate={handleProfileUpdate}
+          loading={loading}
+          error={error}
+          successMessage={successMessage}
+        />
       ),
-      "Notifications": (
+      Notifications: (
         <div className="p-4 bg-gray-800 rounded-lg">
           <h2 className="text-lg font-bold text-white mb-3">Notifications</h2>
           {notifications.length > 0 ? (
@@ -141,9 +155,22 @@ const ClientDashboard = () => {
           )}
         </div>
       ),
-      "Calendar": <CalendarSection date={date} setDate={setDate} events={events} openModal={openModal} />,
-      "Messages": <ContentSection title="Messages" description="Check your messages and communicate with lawyers." buttonText="View Messages" />,
-      "Welcome": <WelcomeSection />,
+      Calendar: (
+        <CalendarSection
+          date={date}
+          setDate={setDate}
+          events={events}
+          openModal={openModal}
+        />
+      ),
+      Messages: (
+        <ContentSection
+          title="Messages"
+          description="Check your messages and communicate with lawyers."
+          buttonText="View Messages"
+        />
+      ),
+      Welcome: <WelcomeSection />,
     };
     return contentMap[selectedOption] || <WelcomeSection />;
   };
@@ -154,11 +181,19 @@ const ClientDashboard = () => {
         <Sidebar selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
         <div className="flex-1 p-4 lg:p-8">
           <Header handleLogout={handleLogout} profile={profile} />
-          <div className="bg-secondary shadow-lg rounded-lg p-4 lg:p-6 flex-grow">{renderContent()}</div>
+          <div className="bg-secondary shadow-lg rounded-lg p-4 lg:p-6 flex-grow">
+            {renderContent()}
+          </div>
         </div>
       </div>
       <Footer />
-      <ModalComponent isOpen={modalIsOpen} onRequestClose={closeModal} eventTitle={eventTitle} setEventTitle={setEventTitle} handleAddEvent={handleAddEvent} />
+      <ModalComponent
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        eventTitle={eventTitle}
+        setEventTitle={setEventTitle}
+        handleAddEvent={handleAddEvent}
+      />
     </div>
   );
 };

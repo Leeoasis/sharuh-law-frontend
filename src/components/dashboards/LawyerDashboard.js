@@ -1,18 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchClients, fetchLawyers, updateProfile, clearSuccessMessage, fetchProfile } from '../../redux/features/userSlice';
-import { fetchCases, createCase, updateCase, deleteCase } from '../../redux/features/caseSlice';
-import ModalComponent from '../ModalComponent';
+import {
+  fetchClients,
+  fetchProfile,
+  updateProfile,
+  clearSuccessMessage,
+  rehydrateUser,
+  fetchNotifications,
+} from '../../redux/features/userSlice';
+import { fetchCases } from '../../redux/features/caseSlice';
+import SubscribeToNotifications from './features/lawyer/Notifications';
 import { useNavigate } from 'react-router-dom';
 import Footer from '../landingSite/Footer';
-import Sidebar from '../dashboards/features/lawyer/Sidebar';
-import Header from '../dashboards/features/lawyer/Header';
-import ContentSection from '../dashboards/features/lawyer/ContentSection';
-import CalendarSection from '../dashboards/features/lawyer/CalenderSection';
-import WelcomeSection from '../dashboards/features/lawyer/WelcomeSection';
-import ClientManagementSection from '../dashboards/features/lawyer/ClientManagementSection';
-import CaseManagementSection from '../dashboards/features/lawyer/CaseManagementSection';
-import ProfileSection from '../dashboards/features/lawyer/ProfileSection';
+import Sidebar from './features/lawyer/Sidebar';
+import Header from './features/lawyer/Header';
+import ContentSection from './features/lawyer/ContentSection';
+import CalendarSection from './features/lawyer/CalenderSection';
+import WelcomeSection from './features/lawyer/WelcomeSection';
+import ClientManagementSection from './features/lawyer/ClientManagementSection';
+import CaseManagementSection from './features/lawyer/CaseManagementSection';
+import ProfileSection from './features/lawyer/ProfileSection';
+import ModalComponent from '../ModalComponent';
 
 const LawyerDashboard = () => {
   const [selectedOption, setSelectedOption] = useState('Client Management');
@@ -20,22 +28,38 @@ const LawyerDashboard = () => {
   const [events, setEvents] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [eventTitle, setEventTitle] = useState('');
+  const [liveNotifications, setLiveNotifications] = useState([]);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { clients, profile, loading, error, successMessage } = useSelector((state) => state.user);
+  const {
+    clients,
+    profile,
+    loading,
+    error,
+    successMessage,
+    notifications: storedNotifications,
+  } = useSelector((state) => state.user);
   const { cases } = useSelector((state) => state.case);
 
+  // Rehydrate profile from localStorage
   useEffect(() => {
-    const userId = profile.id;
-    const userRole = profile.role;
-    if (userId && userRole) {
-      dispatch(fetchProfile({ role: userRole, id: userId }));
-    }
-  }, [dispatch, profile.id, profile.role]);
+    dispatch(rehydrateUser());
+  }, [dispatch]);
 
+  // Fetch profile when rehydrated
   useEffect(() => {
+    if (profile?.id && profile?.role === 'lawyer') {
+      dispatch(fetchProfile({ role: profile.role, id: profile.id }));
+    }
+  }, [dispatch, profile?.id, profile?.role]);
+
+  // Handle content-based data fetching
+  useEffect(() => {
+    if (!profile?.id) return;
+
     if (selectedOption === 'Client Management') {
-      dispatch(fetchClients({}));
+      dispatch(fetchClients({ lawyer_id: profile.id }));
     }
     if (selectedOption === 'Case Management') {
       dispatch(fetchCases(profile.id));
@@ -43,8 +67,26 @@ const LawyerDashboard = () => {
     if (selectedOption === 'Profile') {
       dispatch(fetchProfile({ role: profile.role, id: profile.id }));
     }
-  }, [selectedOption, dispatch, profile.id, profile.role]);
+  }, [selectedOption, dispatch, profile?.id, profile?.role]);
 
+  // Fetch stored notifications once
+  useEffect(() => {
+    if (profile?.id) {
+      dispatch(fetchNotifications(profile.id));
+    }
+  }, [dispatch, profile?.id]);
+
+  // Subscribe to ActionCable notifications
+  useEffect(() => {
+    if (profile?.id) {
+      const subscription = SubscribeToNotifications(profile.id, (notification) => {
+        setLiveNotifications((prev) => [...prev, notification]);
+      });
+      return () => subscription.unsubscribe();
+    }
+  }, [profile?.id]);
+
+  // Clear success messages
   useEffect(() => {
     if (successMessage) {
       setTimeout(() => {
@@ -67,6 +109,7 @@ const LawyerDashboard = () => {
   };
 
   const handleLogout = () => {
+    localStorage.clear();
     navigate('/');
   };
 
@@ -80,37 +123,54 @@ const LawyerDashboard = () => {
     }
   };
 
-  const handleCaseCreate = (caseData) => {
-    dispatch(createCase({ userId: profile.id, caseData }));
-  };
-
-  const handleCaseUpdate = (caseId, caseData) => {
-    dispatch(updateCase({ userId: profile.id, caseId, caseData }));
-  };
-
-  const handleCaseDelete = (caseId) => {
-    dispatch(deleteCase({ userId: profile.id, caseId }));
-  };
-
   const renderContent = () => {
+    const allNotifications = [...liveNotifications, ...storedNotifications];
     const contentMap = {
       'Client Management': (
         <ClientManagementSection clients={clients} loading={loading} error={error} />
       ),
       'Case Management': (
-        <CaseManagementSection cases={cases} onCreate={handleCaseCreate} onUpdate={handleCaseUpdate} onDelete={handleCaseDelete} loading={loading} error={error} />
+        <CaseManagementSection cases={cases} loading={loading} error={error} />
       ),
-      'Profile': (
-        <ProfileSection profile={profile} onUpdate={handleProfileUpdate} loading={loading} error={error} successMessage={successMessage} />
+      Profile: (
+        <ProfileSection
+          profile={profile}
+          onUpdate={handleProfileUpdate}
+          loading={loading}
+          error={error}
+          successMessage={successMessage}
+        />
       ),
-      'Notifications': (
-        <ContentSection title="Notifications" description="Check your latest notifications." buttonText="View Notifications" />
+      Notifications: (
+        <div className="p-4 bg-gray-800 rounded-lg">
+          <h2 className="text-lg font-bold text-white mb-3">Notifications</h2>
+          {allNotifications.length > 0 ? (
+            <ul className="space-y-2">
+              {allNotifications.map((notif, index) => (
+                <li key={index} className="p-2 bg-gray-700 rounded">
+                  {notif.message}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-400">No new notifications.</p>
+          )}
+        </div>
       ),
-      'Calendar': (
-        <CalendarSection date={date} setDate={setDate} events={events} openModal={openModal} />
+      Calendar: (
+        <CalendarSection
+          date={date}
+          setDate={setDate}
+          events={events}
+          openModal={openModal}
+        />
       ),
-      'Messages': (
-        <ContentSection title="Messages" description="Check your messages and communicate with clients." buttonText="View Messages" />
+      Messages: (
+        <ContentSection
+          title="Messages"
+          description="Check your messages and communicate with clients."
+          buttonText="View Messages"
+        />
       ),
     };
     return contentMap[selectedOption] || <WelcomeSection />;
