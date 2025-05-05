@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '../../api/axiosInstance';
 
-// ✅ Create a case (fixes wrong route)
+// ✅ Create a case
 export const createCase = createAsyncThunk(
   'case/createCase',
   async ({ userId, caseData }) => {
@@ -9,7 +9,7 @@ export const createCase = createAsyncThunk(
       user_id: userId,
       case: caseData,
     });
-    return response.data.case; // assume backend responds with { message, case }
+    return response.data.case;
   }
 );
 
@@ -22,7 +22,7 @@ export const fetchCases = createAsyncThunk(
   }
 );
 
-// ✅ Update case
+// ✅ Update case (for general updates – not claiming)
 export const updateCase = createAsyncThunk(
   'case/updateCase',
   async ({ userId, caseId, caseData }) => {
@@ -30,6 +30,17 @@ export const updateCase = createAsyncThunk(
       case: caseData,
     });
     return response.data;
+  }
+);
+
+// ✅ Accept case using custom POST /cases/:id/accept
+export const acceptCase = createAsyncThunk(
+  'case/acceptCase',
+  async ({ caseId, lawyerId }) => {
+    const response = await axiosInstance.post(`/cases/${caseId}/accept`, {
+      lawyer_id: lawyerId,
+    });
+    return { caseId, lawyerId, ...response.data };
   }
 );
 
@@ -52,6 +63,7 @@ const caseSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // Fetch cases
       .addCase(fetchCases.pending, (state) => {
         state.loading = true;
       })
@@ -64,6 +76,7 @@ const caseSlice = createSlice({
         state.error = action.error.message;
       })
 
+      // Create case
       .addCase(createCase.pending, (state) => {
         state.loading = true;
       })
@@ -76,6 +89,7 @@ const caseSlice = createSlice({
         state.error = action.error.message;
       })
 
+      // Update case
       .addCase(updateCase.pending, (state) => {
         state.loading = true;
       })
@@ -89,6 +103,24 @@ const caseSlice = createSlice({
         state.error = action.error.message;
       })
 
+      // Accept case (custom route)
+      .addCase(acceptCase.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(acceptCase.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.cases.findIndex(c => c.id === action.payload.caseId);
+        if (index !== -1) {
+          state.cases[index].status = 'claimed';
+          state.cases[index].lawyer_id = action.payload.lawyerId;
+        }
+      })
+      .addCase(acceptCase.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
+      // Delete case
       .addCase(deleteCase.pending, (state) => {
         state.loading = true;
       })

@@ -42,19 +42,16 @@ const LawyerDashboard = () => {
   } = useSelector((state) => state.user);
   const { cases } = useSelector((state) => state.case);
 
-  // Rehydrate profile from localStorage
   useEffect(() => {
     dispatch(rehydrateUser());
   }, [dispatch]);
 
-  // Fetch profile when rehydrated
   useEffect(() => {
     if (profile?.id && profile?.role === 'lawyer') {
       dispatch(fetchProfile({ role: profile.role, id: profile.id }));
     }
   }, [dispatch, profile?.id, profile?.role]);
 
-  // Handle content-based data fetching
   useEffect(() => {
     if (!profile?.id) return;
 
@@ -69,14 +66,12 @@ const LawyerDashboard = () => {
     }
   }, [selectedOption, dispatch, profile?.id, profile?.role]);
 
-  // Fetch stored notifications once
   useEffect(() => {
     if (profile?.id) {
       dispatch(fetchNotifications(profile.id));
     }
   }, [dispatch, profile?.id]);
 
-  // Subscribe to ActionCable notifications
   useEffect(() => {
     if (profile?.id) {
       const subscription = SubscribeToNotifications(profile.id, (notification) => {
@@ -86,7 +81,6 @@ const LawyerDashboard = () => {
     }
   }, [profile?.id]);
 
-  // Clear success messages
   useEffect(() => {
     if (successMessage) {
       setTimeout(() => {
@@ -181,7 +175,11 @@ const LawyerDashboard = () => {
       <div className="flex flex-col lg:flex-row flex-grow">
         <Sidebar selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
         <div className="flex-1 p-4 lg:p-8">
-          <Header handleLogout={handleLogout} profile={profile} />
+          <Header
+            handleLogout={handleLogout}
+            profile={profile}
+            notifications={[...liveNotifications, ...storedNotifications]}
+          />
           <div className="bg-secondary shadow-lg rounded-lg p-4 lg:p-6 flex-grow">
             {renderContent()}
           </div>
