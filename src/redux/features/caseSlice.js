@@ -13,7 +13,7 @@ export const createCase = createAsyncThunk(
   }
 );
 
-// ✅ Fetch cases
+// ✅ Fetch cases assigned to the current user (lawyer or client)
 export const fetchCases = createAsyncThunk(
   'case/fetchCases',
   async (userId) => {
@@ -22,13 +22,11 @@ export const fetchCases = createAsyncThunk(
   }
 );
 
-// ✅ Update case (for general updates – not claiming)
-export const updateCase = createAsyncThunk(
-  'case/updateCase',
-  async ({ userId, caseId, caseData }) => {
-    const response = await axiosInstance.put(`/cases/${caseId}?user_id=${userId}`, {
-      case: caseData,
-    });
+// ✅ Fetch available (unclaimed) cases for lawyer
+export const fetchAvailableCases = createAsyncThunk(
+  'case/fetchAvailableCases',
+  async (lawyerId) => {
+    const response = await axiosInstance.get(`/api/lawyer/${lawyerId}/available_cases`);
     return response.data;
   }
 );
@@ -41,6 +39,17 @@ export const acceptCase = createAsyncThunk(
       lawyer_id: lawyerId,
     });
     return { caseId, lawyerId, ...response.data };
+  }
+);
+
+// ✅ Update case (general purpose, not used for accept)
+export const updateCase = createAsyncThunk(
+  'case/updateCase',
+  async ({ userId, caseId, caseData }) => {
+    const response = await axiosInstance.put(`/cases/${caseId}?user_id=${userId}`, {
+      case: caseData,
+    });
+    return response.data;
   }
 );
 
@@ -57,13 +66,14 @@ const caseSlice = createSlice({
   name: 'case',
   initialState: {
     cases: [],
+    availableCases: [],
     loading: false,
     error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Fetch cases
+      // 🔄 Fetch your own cases
       .addCase(fetchCases.pending, (state) => {
         state.loading = true;
       })
@@ -76,7 +86,20 @@ const caseSlice = createSlice({
         state.error = action.error.message;
       })
 
-      // Create case
+      // 🔄 Fetch available open cases
+      .addCase(fetchAvailableCases.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchAvailableCases.fulfilled, (state, action) => {
+        state.loading = false;
+        state.availableCases = action.payload;
+      })
+      .addCase(fetchAvailableCases.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
+      // ✅ Create case
       .addCase(createCase.pending, (state) => {
         state.loading = true;
       })
@@ -89,7 +112,7 @@ const caseSlice = createSlice({
         state.error = action.error.message;
       })
 
-      // Update case
+      // ✅ Update case
       .addCase(updateCase.pending, (state) => {
         state.loading = true;
       })
@@ -103,16 +126,27 @@ const caseSlice = createSlice({
         state.error = action.error.message;
       })
 
-      // Accept case (custom route)
+      // ✅ Accept case
       .addCase(acceptCase.pending, (state) => {
         state.loading = true;
       })
       .addCase(acceptCase.fulfilled, (state, action) => {
         state.loading = false;
+
+        // Update in assigned cases if it already exists there
         const index = state.cases.findIndex(c => c.id === action.payload.caseId);
         if (index !== -1) {
           state.cases[index].status = 'claimed';
           state.cases[index].lawyer_id = action.payload.lawyerId;
+        } else {
+          // Else move from availableCases to cases
+          const acceptedCase = state.availableCases.find(c => c.id === action.payload.caseId);
+          if (acceptedCase) {
+            acceptedCase.status = 'claimed';
+            acceptedCase.lawyer_id = action.payload.lawyerId;
+            state.cases.push(acceptedCase);
+            state.availableCases = state.availableCases.filter(c => c.id !== action.payload.caseId);
+          }
         }
       })
       .addCase(acceptCase.rejected, (state, action) => {
@@ -120,7 +154,7 @@ const caseSlice = createSlice({
         state.error = action.error.message;
       })
 
-      // Delete case
+      // ✅ Delete case
       .addCase(deleteCase.pending, (state) => {
         state.loading = true;
       })

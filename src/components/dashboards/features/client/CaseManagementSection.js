@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 const courts = ["Supreme Court", "High Court", "Magistrate Court", "Family Court", "Commercial Court"];
-const caseTypes = ["Criminal", "Family", "Corporate", "Intellectual Property", "Labor"];
+const caseTypes = ["Criminal", "Family Law", "Corporate", "Intellectual Property", "Labor"];
 
 const CaseManagementSection = ({ profile, cases, onCreate }) => {
   const [caseData, setCaseData] = useState({

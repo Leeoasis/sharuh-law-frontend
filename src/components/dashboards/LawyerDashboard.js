@@ -8,7 +8,11 @@ import {
   rehydrateUser,
   fetchNotifications,
 } from '../../redux/features/userSlice';
-import { fetchCases } from '../../redux/features/caseSlice';
+import {
+  fetchCases,
+  fetchAvailableCases,
+} from '../../redux/features/caseSlice';
+
 import SubscribeToNotifications from './features/lawyer/Notifications';
 import { useNavigate } from 'react-router-dom';
 import Footer from '../landingSite/Footer';
@@ -32,6 +36,7 @@ const LawyerDashboard = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const {
     clients,
     profile,
@@ -40,18 +45,25 @@ const LawyerDashboard = () => {
     successMessage,
     notifications: storedNotifications,
   } = useSelector((state) => state.user);
-  const { cases } = useSelector((state) => state.case);
 
+  const {
+    cases,
+    availableCases,
+  } = useSelector((state) => state.case);
+
+  // Rehydrate user from localStorage
   useEffect(() => {
     dispatch(rehydrateUser());
   }, [dispatch]);
 
+  // Fetch profile on load
   useEffect(() => {
     if (profile?.id && profile?.role === 'lawyer') {
       dispatch(fetchProfile({ role: profile.role, id: profile.id }));
     }
   }, [dispatch, profile?.id, profile?.role]);
 
+  // Fetch data based on dashboard section
   useEffect(() => {
     if (!profile?.id) return;
 
@@ -61,17 +73,22 @@ const LawyerDashboard = () => {
     if (selectedOption === 'Case Management') {
       dispatch(fetchCases(profile.id));
     }
+    if (selectedOption === 'Available Cases') {
+      dispatch(fetchAvailableCases(profile.id));
+    }
     if (selectedOption === 'Profile') {
       dispatch(fetchProfile({ role: profile.role, id: profile.id }));
     }
   }, [selectedOption, dispatch, profile?.id, profile?.role]);
 
+  // Fetch stored notifications
   useEffect(() => {
     if (profile?.id) {
       dispatch(fetchNotifications(profile.id));
     }
   }, [dispatch, profile?.id]);
 
+  // Subscribe to real-time ActionCable notifications
   useEffect(() => {
     if (profile?.id) {
       const subscription = SubscribeToNotifications(profile.id, (notification) => {
@@ -81,6 +98,7 @@ const LawyerDashboard = () => {
     }
   }, [profile?.id]);
 
+  // Auto-clear flash messages
   useEffect(() => {
     if (successMessage) {
       setTimeout(() => {
@@ -112,8 +130,6 @@ const LawyerDashboard = () => {
     if (id) {
       const formattedProfileData = { user: profileData };
       dispatch(updateProfile({ id, profileData: formattedProfileData }));
-    } else {
-      console.error('User ID is missing');
     }
   };
 
@@ -124,7 +140,10 @@ const LawyerDashboard = () => {
         <ClientManagementSection clients={clients} loading={loading} error={error} />
       ),
       'Case Management': (
-        <CaseManagementSection cases={cases} loading={loading} error={error} />
+        <CaseManagementSection cases={cases} loading={loading} error={error} allowAccept={false} />
+      ),
+      'Available Cases': (
+        <CaseManagementSection cases={availableCases} loading={loading} error={error} allowAccept={true} />
       ),
       Profile: (
         <ProfileSection
