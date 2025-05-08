@@ -1,19 +1,25 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '../../api/axiosInstance';
+import { notifySuccess, notifyError } from '../../utils/NotificationSystem';
 
-// ✅ Create a case
+// ✅ Create a case — fixed route with toast feedback
 export const createCase = createAsyncThunk(
   'case/createCase',
-  async ({ userId, caseData }) => {
-    const response = await axiosInstance.post('/cases', {
-      user_id: userId,
-      case: caseData,
-    });
-    return response.data.case;
+  async ({ userId, caseData }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(`/users/${userId}/cases`, {
+        case: caseData,
+      });
+      notifySuccess("Case created successfully!");
+      return response.data;
+    } catch (err) {
+      notifyError("Failed to create case.");
+      return rejectWithValue(err.response?.data || err.message);
+    }
   }
 );
 
-// ✅ Fetch cases assigned to the current user (lawyer or client)
+// ✅ Fetch cases
 export const fetchCases = createAsyncThunk(
   'case/fetchCases',
   async (userId) => {
@@ -22,7 +28,7 @@ export const fetchCases = createAsyncThunk(
   }
 );
 
-// ✅ Fetch available (unclaimed) cases for lawyer
+// ✅ Fetch available cases
 export const fetchAvailableCases = createAsyncThunk(
   'case/fetchAvailableCases',
   async (lawyerId) => {
@@ -31,34 +37,47 @@ export const fetchAvailableCases = createAsyncThunk(
   }
 );
 
-// ✅ Accept case using custom POST /cases/:id/accept
+// ✅ Accept case
 export const acceptCase = createAsyncThunk(
   'case/acceptCase',
   async ({ caseId, lawyerId }) => {
     const response = await axiosInstance.post(`/cases/${caseId}/accept`, {
       lawyer_id: lawyerId,
     });
+    notifySuccess("Case accepted successfully!");
     return { caseId, lawyerId, ...response.data };
   }
 );
 
-// ✅ Update case (general purpose, not used for accept)
+// ✅ Update case
 export const updateCase = createAsyncThunk(
   'case/updateCase',
-  async ({ userId, caseId, caseData }) => {
-    const response = await axiosInstance.put(`/cases/${caseId}?user_id=${userId}`, {
-      case: caseData,
-    });
-    return response.data;
+  async ({ userId, caseId, caseData }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.put(`/cases/${caseId}?user_id=${userId}`, {
+        case: caseData,
+      });
+      notifySuccess("Case updated successfully!");
+      return response.data;
+    } catch (err) {
+      notifyError("Failed to update case.");
+      return rejectWithValue(err.response?.data || err.message);
+    }
   }
 );
 
 // ✅ Delete case
 export const deleteCase = createAsyncThunk(
   'case/deleteCase',
-  async ({ userId, caseId }) => {
-    await axiosInstance.delete(`/cases/${caseId}?user_id=${userId}`);
-    return caseId;
+  async ({ userId, caseId }, { rejectWithValue }) => {
+    try {
+      await axiosInstance.delete(`/cases/${caseId}?user_id=${userId}`);
+      notifySuccess("Case deleted successfully!");
+      return caseId;
+    } catch (err) {
+      notifyError("Failed to delete case.");
+      return rejectWithValue(err.response?.data || err.message);
+    }
   }
 );
 
@@ -73,7 +92,6 @@ const caseSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // 🔄 Fetch your own cases
       .addCase(fetchCases.pending, (state) => {
         state.loading = true;
       })
@@ -86,7 +104,6 @@ const caseSlice = createSlice({
         state.error = action.error.message;
       })
 
-      // 🔄 Fetch available open cases
       .addCase(fetchAvailableCases.pending, (state) => {
         state.loading = true;
       })
@@ -99,7 +116,6 @@ const caseSlice = createSlice({
         state.error = action.error.message;
       })
 
-      // ✅ Create case
       .addCase(createCase.pending, (state) => {
         state.loading = true;
       })
@@ -109,10 +125,9 @@ const caseSlice = createSlice({
       })
       .addCase(createCase.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload || action.error.message;
       })
 
-      // ✅ Update case
       .addCase(updateCase.pending, (state) => {
         state.loading = true;
       })
@@ -123,23 +138,19 @@ const caseSlice = createSlice({
       })
       .addCase(updateCase.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload || action.error.message;
       })
 
-      // ✅ Accept case
       .addCase(acceptCase.pending, (state) => {
         state.loading = true;
       })
       .addCase(acceptCase.fulfilled, (state, action) => {
         state.loading = false;
-
-        // Update in assigned cases if it already exists there
         const index = state.cases.findIndex(c => c.id === action.payload.caseId);
         if (index !== -1) {
           state.cases[index].status = 'claimed';
           state.cases[index].lawyer_id = action.payload.lawyerId;
         } else {
-          // Else move from availableCases to cases
           const acceptedCase = state.availableCases.find(c => c.id === action.payload.caseId);
           if (acceptedCase) {
             acceptedCase.status = 'claimed';
@@ -154,7 +165,6 @@ const caseSlice = createSlice({
         state.error = action.error.message;
       })
 
-      // ✅ Delete case
       .addCase(deleteCase.pending, (state) => {
         state.loading = true;
       })
@@ -164,7 +174,7 @@ const caseSlice = createSlice({
       })
       .addCase(deleteCase.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload || action.error.message;
       });
   },
 });

@@ -23,6 +23,8 @@ import CalendarSection from "../dashboards/features/client/CalenderSection";
 import WelcomeSection from "../dashboards/features/client/WelcomeSection";
 import ProfileSection from "../dashboards/features/client/ProfileSection";
 import CaseManagementSection from "../dashboards/features/client/CaseManagementSection";
+import { notifySuccess, notifyError } from "../../utils/NotificationSystem";
+import { ToastContainer } from "react-toastify";
 
 const ClientDashboard = () => {
   const [selectedOption, setSelectedOption] = useState("Case Management");
@@ -39,12 +41,10 @@ const ClientDashboard = () => {
   );
   const { cases } = useSelector((state) => state.case);
 
-  // ✅ Rehydrate user from localStorage on first load
   useEffect(() => {
     dispatch(rehydrateUser());
   }, [dispatch]);
 
-  // ✅ Fetch profile and cases when profile is ready
   useEffect(() => {
     if (!profile?.id) return;
 
@@ -100,22 +100,23 @@ const ClientDashboard = () => {
 
   const handleCaseCreate = (caseData) => {
     dispatch(createCase({ userId: profile.id, caseData }))
-      .then((response) => {
-        if (response.payload.message) {
-          alert(response.payload.message);
-        }
-      })
-      .catch((error) => {
-        console.error("Error creating case:", error);
-      });
+      .unwrap()
+      .then(() => notifySuccess("Case created successfully!"))
+      .catch(() => notifyError("Failed to create case."));
   };
 
   const handleCaseUpdate = (caseId, caseData) => {
-    dispatch(updateCase({ userId: profile.id, caseId, caseData }));
+    dispatch(updateCase({ userId: profile.id, caseId, caseData }))
+      .unwrap()
+      .then(() => notifySuccess("Case updated successfully!"))
+      .catch(() => notifyError("Failed to update case."));
   };
 
   const handleCaseDelete = (caseId) => {
-    dispatch(deleteCase({ userId: profile.id, caseId }));
+    dispatch(deleteCase({ userId: profile.id, caseId }))
+      .unwrap()
+      .then(() => notifySuccess("Case deleted successfully!"))
+      .catch(() => notifyError("Failed to delete case."));
   };
 
   const renderContent = () => {
@@ -194,6 +195,7 @@ const ClientDashboard = () => {
         setEventTitle={setEventTitle}
         handleAddEvent={handleAddEvent}
       />
+      <ToastContainer />
     </div>
   );
 };
