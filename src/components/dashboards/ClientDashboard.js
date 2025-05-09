@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../../redux/actions/logout";
 import {
   updateProfile,
   clearSuccessMessage,
@@ -87,8 +88,7 @@ const ClientDashboard = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("data");
-    localStorage.removeItem("token");
+    dispatch(logout());
     navigate("/");
   };
 

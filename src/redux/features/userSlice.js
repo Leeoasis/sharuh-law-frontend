@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '../../api/axiosInstance';
+import { notifySuccess, notifyError } from '../../utils/NotificationSystem';
 
-// Fetch lawyers based on criteria
 export const fetchLawyers = createAsyncThunk(
   'user/fetchLawyers',
   async (criteria) => {
@@ -10,7 +10,6 @@ export const fetchLawyers = createAsyncThunk(
   }
 );
 
-// Fetch clients — either all or only assigned to a specific lawyer
 export const fetchClients = createAsyncThunk(
   'user/fetchClients',
   async (criteria = {}) => {
@@ -21,17 +20,21 @@ export const fetchClients = createAsyncThunk(
   }
 );
 
-// Update user profile
 export const updateProfile = createAsyncThunk(
   'user/updateProfile',
-  async ({ id, profileData }) => {
-    const response = await axiosInstance.put(`/api/user/${id}`, profileData);
-    localStorage.setItem('data', JSON.stringify(response.data));
-    return response.data;
+  async ({ id, profileData }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.put(`/api/user/${id}`, profileData);
+      localStorage.setItem('data', JSON.stringify(response.data));
+      notifySuccess('Profile updated successfully');
+      return response.data;
+    } catch (err) {
+      notifyError('Failed to update profile');
+      return rejectWithValue(err.response?.data || err.message);
+    }
   }
 );
 
-// Fetch user profile
 export const fetchProfile = createAsyncThunk(
   'user/fetchProfile',
   async ({ role, id }) => {
@@ -40,7 +43,6 @@ export const fetchProfile = createAsyncThunk(
   }
 );
 
-// Fetch notifications for a user
 export const fetchNotifications = createAsyncThunk(
   'user/fetchNotifications',
   async (userId) => {
@@ -49,7 +51,6 @@ export const fetchNotifications = createAsyncThunk(
   }
 );
 
-// Rehydrate user from localStorage
 export const rehydrateUser = createAsyncThunk(
   'user/rehydrateUser',
   async () => {
@@ -73,6 +74,18 @@ const userSlice = createSlice({
   reducers: {
     clearSuccessMessage: (state) => {
       state.successMessage = '';
+    },
+    reset: (state) => {
+      return {
+        ...state,
+        profile: {},
+        notifications: [],
+        lawyers: [],
+        clients: [],
+        successMessage: '',
+        loading: false,
+        error: null,
+      };
     },
   },
   extraReducers: (builder) => {
@@ -119,5 +132,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { clearSuccessMessage } = userSlice.actions;
+export const { clearSuccessMessage, reset } = userSlice.actions;
 export default userSlice.reducer;

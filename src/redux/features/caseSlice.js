@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '../../api/axiosInstance';
 import { notifySuccess, notifyError } from '../../utils/NotificationSystem';
 
-// ✅ Create a case — fixed route with toast feedback
 export const createCase = createAsyncThunk(
   'case/createCase',
   async ({ userId, caseData }, { rejectWithValue }) => {
@@ -19,7 +18,6 @@ export const createCase = createAsyncThunk(
   }
 );
 
-// ✅ Fetch cases
 export const fetchCases = createAsyncThunk(
   'case/fetchCases',
   async (userId) => {
@@ -28,7 +26,6 @@ export const fetchCases = createAsyncThunk(
   }
 );
 
-// ✅ Fetch available cases
 export const fetchAvailableCases = createAsyncThunk(
   'case/fetchAvailableCases',
   async (lawyerId) => {
@@ -37,7 +34,6 @@ export const fetchAvailableCases = createAsyncThunk(
   }
 );
 
-// ✅ Accept case
 export const acceptCase = createAsyncThunk(
   'case/acceptCase',
   async ({ caseId, lawyerId }) => {
@@ -49,7 +45,6 @@ export const acceptCase = createAsyncThunk(
   }
 );
 
-// ✅ Update case
 export const updateCase = createAsyncThunk(
   'case/updateCase',
   async ({ userId, caseId, caseData }, { rejectWithValue }) => {
@@ -66,7 +61,6 @@ export const updateCase = createAsyncThunk(
   }
 );
 
-// ✅ Delete case
 export const deleteCase = createAsyncThunk(
   'case/deleteCase',
   async ({ userId, caseId }, { rejectWithValue }) => {
@@ -89,64 +83,34 @@ const caseSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    reset: (state) => {
+      return {
+        ...state,
+        cases: [],
+        availableCases: [],
+        loading: false,
+        error: null,
+      };
+    },
+  },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchCases.pending, (state) => {
-        state.loading = true;
-      })
       .addCase(fetchCases.fulfilled, (state, action) => {
-        state.loading = false;
         state.cases = action.payload;
       })
-      .addCase(fetchCases.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-      })
-
-      .addCase(fetchAvailableCases.pending, (state) => {
-        state.loading = true;
-      })
       .addCase(fetchAvailableCases.fulfilled, (state, action) => {
-        state.loading = false;
         state.availableCases = action.payload;
       })
-      .addCase(fetchAvailableCases.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-      })
-
-      .addCase(createCase.pending, (state) => {
-        state.loading = true;
-      })
       .addCase(createCase.fulfilled, (state, action) => {
-        state.loading = false;
         state.cases.push(action.payload);
       })
-      .addCase(createCase.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-      })
-
-      .addCase(updateCase.pending, (state) => {
-        state.loading = true;
-      })
       .addCase(updateCase.fulfilled, (state, action) => {
-        state.loading = false;
-        const index = state.cases.findIndex(c => c.id === action.payload.id);
+        const index = state.cases.findIndex((c) => c.id === action.payload.id);
         if (index !== -1) state.cases[index] = action.payload;
       })
-      .addCase(updateCase.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-      })
-
-      .addCase(acceptCase.pending, (state) => {
-        state.loading = true;
-      })
       .addCase(acceptCase.fulfilled, (state, action) => {
-        state.loading = false;
-        const index = state.cases.findIndex(c => c.id === action.payload.caseId);
+        const index = state.cases.findIndex((c) => c.id === action.payload.caseId);
         if (index !== -1) {
           state.cases[index].status = 'claimed';
           state.cases[index].lawyer_id = action.payload.lawyerId;
@@ -160,23 +124,11 @@ const caseSlice = createSlice({
           }
         }
       })
-      .addCase(acceptCase.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-      })
-
-      .addCase(deleteCase.pending, (state) => {
-        state.loading = true;
-      })
       .addCase(deleteCase.fulfilled, (state, action) => {
-        state.loading = false;
-        state.cases = state.cases.filter(c => c.id !== action.payload);
-      })
-      .addCase(deleteCase.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
+        state.cases = state.cases.filter((c) => c.id !== action.payload);
       });
   },
 });
 
+export const { reset } = caseSlice.actions;
 export default caseSlice.reducer;
