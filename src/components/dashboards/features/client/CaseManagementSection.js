@@ -68,8 +68,8 @@ const CaseManagementSection = ({ profile, cases, onCreate }) => {
               <p className="text-white">{caseItem.description}</p>
               <p className="text-white">Court: {caseItem.court}</p>
               <p className="text-white">Status: {caseItem.status}</p>
-              {caseItem.lawyer_id && (
-                <p className="text-green-400">Accepted by lawyer #{caseItem.lawyer_id}</p>
+              {caseItem.lawyer?.name && (
+                <p className="text-green-400">Accepted by {caseItem.lawyer.name}</p>
               )}
             </div>
           </li>
