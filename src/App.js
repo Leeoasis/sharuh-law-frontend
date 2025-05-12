@@ -13,6 +13,7 @@ import ClientDashboard from './components/dashboards/ClientDashboard';
 import LawyerDashboard from './components/dashboards/LawyerDashboard';
 import About from './components/landingSite/About';
 import Contact from './components/landingSite/Contact';
+import AdminDashboard from './components/dashboards/AdminDashboard'; // Admin Dashboard
 
 const App = () => {
   const dispatch = useDispatch();
@@ -32,7 +33,7 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/client-dashboard" element={<ClientDashboard />} />
           <Route path="/lawyer-dashboard" element={<LawyerDashboard />} />
-          <Route path="/about" element={<About />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} /> {/* Admin Dashboard */}
           <Route path="/contact" element={<Contact />} />
         </Routes>
       </>

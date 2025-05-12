@@ -31,6 +31,9 @@ const Login = () => {
         } else if (response.payload.role === 'lawyer') {
           navigate('/lawyer-dashboard');
         }
+        else if (response.payload.role === 'admin') {
+          navigate('/admin-dashboard');
+        }
       }
     });
   };
