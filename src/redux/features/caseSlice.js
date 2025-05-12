@@ -18,6 +18,16 @@ export const createCase = createAsyncThunk(
   }
 );
 
+export const fetchUnassignedCasesForAdmin = createAsyncThunk(
+  "case/fetchUnassignedCasesForAdmin",
+  async (adminId) => {
+    const response = await axiosInstance.get(`/admin-cases`, {
+      params: { user_id: adminId }
+    });
+    return response.data;
+  }
+);
+
 export const fetchCases = createAsyncThunk(
   'case/fetchCases',
   async (userId) => {
@@ -124,6 +134,10 @@ const caseSlice = createSlice({
           }
         }
       })
+      .addCase(fetchUnassignedCasesForAdmin.fulfilled, (state, action) => {
+       state.cases = action.payload;
+      })
+
       .addCase(deleteCase.fulfilled, (state, action) => {
         state.cases = state.cases.filter((c) => c.id !== action.payload);
       });

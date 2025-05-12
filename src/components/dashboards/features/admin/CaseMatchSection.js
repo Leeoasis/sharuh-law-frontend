@@ -1,12 +1,30 @@
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { updateCase } from "../../../../redux/features/caseSlice";
 
-const CaseMatchSection = ({ cases, lawyers, onAssign }) => {
+const CaseMatchSection = ({ cases, lawyers }) => {
+  const dispatch = useDispatch();
+  const { profile } = useSelector((state) => state.user);
   const unmatched = cases.filter((c) => !c.lawyer_id);
+
+  const handleAssign = (caseId, lawyerId, fee, commission) => {
+    dispatch(updateCase({
+      userId: profile.id,
+      caseId,
+      caseData: {
+        lawyer_id: lawyerId,
+        fee,
+        commission
+      }
+    }));
+  };
 
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">Unmatched Client Cases</h2>
-      {unmatched.length === 0 ? <p>No new cases.</p> : (
+      {unmatched.length === 0 ? (
+        <p>No new cases.</p>
+      ) : (
         <ul className="space-y-6">
           {unmatched.map((c) => (
             <li key={c.id} className="p-4 border rounded bg-white text-black">
@@ -20,7 +38,7 @@ const CaseMatchSection = ({ cases, lawyers, onAssign }) => {
                   const fee = parseFloat(e.target.fee.value);
                   const commission = parseFloat(e.target.commission.value);
                   const lawyerId = parseInt(e.target.lawyer_id.value);
-                  onAssign(c.id, lawyerId, fee, commission);
+                  handleAssign(c.id, lawyerId, fee, commission);
                 }}
               >
                 <label className="block">Assign to:</label>

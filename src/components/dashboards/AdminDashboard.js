@@ -9,11 +9,13 @@ import {
   clearSuccessMessage,
   rehydrateUser,
 } from "../../redux/features/userSlice";
-import { fetchCases } from "../../redux/features/caseSlice";
+import {
+  fetchUnassignedCasesForAdmin,
+} from "../../redux/features/caseSlice";
 import { logout } from "../../redux/actions/logout";
 import { useNavigate } from "react-router-dom";
 import Footer from "../landingSite/Footer";
-import Header from "../dashboards/features/admin/Header";
+import Header from "../dashboards/features/lawyer/Header";
 import Sidebar from "../dashboards/features/admin/Sidebar";
 import SubscribeToNotifications from "../dashboards/features/lawyer/Notifications";
 
@@ -49,7 +51,7 @@ const AdminDashboard = () => {
       dispatch(fetchProfile({ role: "admin", id: profile.id }));
       dispatch(fetchLawyers());
       dispatch(fetchClients());
-      dispatch(fetchCases(profile.id));
+      dispatch(fetchUnassignedCasesForAdmin(profile.id));
       dispatch(fetchNotifications(profile.id));
     }
   }, [dispatch, profile?.id, profile?.role]);
@@ -71,6 +73,12 @@ const AdminDashboard = () => {
     }
   }, [profile?.id]);
 
+  useEffect(() => {
+    if (liveNotifications.length > 0 && profile?.id && profile?.role === "admin") {
+      dispatch(fetchUnassignedCasesForAdmin(profile.id));
+    }
+  }, [liveNotifications.length]);
+
   const handleLogout = () => {
     dispatch(logout());
     navigate("/");
@@ -85,7 +93,7 @@ const AdminDashboard = () => {
   };
 
   const handleCaseAssign = (caseId, lawyerId, fee, commission) => {
-    // Replace with real API call
+    // Placeholder — handled by PUT /cases/:id
     alert(`Assigned case ${caseId} to lawyer ${lawyerId} for R${fee} (R${commission} commission)`);
   };
 
@@ -104,7 +112,9 @@ const AdminDashboard = () => {
         return <ProfileSection profile={profile} onUpdate={handleProfileUpdate} />;
       case "Notifications":
         return (
-          <NotificationsSection notifications={[...liveNotifications, ...(storedNotifications || [])]} />
+          <NotificationsSection
+            notifications={[...liveNotifications, ...(storedNotifications || [])]}
+          />
         );
       default:
         return <div>Select an option from the sidebar.</div>;
