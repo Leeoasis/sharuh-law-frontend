@@ -12,6 +12,7 @@ import {
 import {
   fetchCases,
   fetchAvailableCases,
+  acceptCase,
 } from '../../redux/features/caseSlice';
 
 import SubscribeToNotifications from './features/lawyer/Notifications';
@@ -26,6 +27,8 @@ import ClientManagementSection from './features/lawyer/ClientManagementSection';
 import CaseManagementSection from './features/lawyer/CaseManagementSection';
 import ProfileSection from './features/lawyer/ProfileSection';
 import ModalComponent from '../ModalComponent';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const LawyerDashboard = () => {
   const [selectedOption, setSelectedOption] = useState('Client Management');
@@ -134,6 +137,19 @@ const LawyerDashboard = () => {
     }
   };
 
+  const handleCaseAccept = (caseId) => {
+    dispatch(acceptCase({ caseId, lawyerId: profile.id }))
+      .then((res) => {
+        if (res.meta.requestStatus === 'fulfilled') {
+          toast.success("Case accepted successfully!");
+          dispatch(fetchAvailableCases(profile.id)); // refresh list
+          dispatch(fetchCases(profile.id)); // refresh claimed
+        } else {
+          toast.error("Failed to accept case.");
+        }
+      });
+  };
+
   const renderContent = () => {
     const allNotifications = [...liveNotifications, ...storedNotifications];
     const contentMap = {
@@ -141,10 +157,21 @@ const LawyerDashboard = () => {
         <ClientManagementSection clients={clients} loading={loading} error={error} />
       ),
       'Case Management': (
-        <CaseManagementSection cases={cases} loading={loading} error={error} allowAccept={false} />
+        <CaseManagementSection
+          cases={cases}
+          loading={loading}
+          error={error}
+          allowAccept={false}
+        />
       ),
       'Available Cases': (
-        <CaseManagementSection cases={availableCases} loading={loading} error={error} allowAccept={true} />
+        <CaseManagementSection
+          cases={availableCases}
+          loading={loading}
+          error={error}
+          allowAccept={true}
+          onAccept={handleCaseAccept}
+        />
       ),
       Profile: (
         <ProfileSection
@@ -192,6 +219,7 @@ const LawyerDashboard = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-secondary-light text-white">
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="flex flex-col lg:flex-row flex-grow">
         <Sidebar selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
         <div className="flex-1 p-4 lg:p-8">
