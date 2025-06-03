@@ -2,12 +2,25 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { fetchreg } from '../../redux/auth/registerSlice';
-import Navbar from '../landingSite/Navbar'; 
+import Navbar from '../landingSite/Navbar';
 import Footer from '../landingSite/Footer';
 import RegisterBackground from '../../assets/Images/analysis.jpeg';
 
-const courts = ["Supreme Court", "High Court", "Magistrate Court", "Family Court", "Commercial Court"];
-const expertiseAreas = ["Criminal Law", "Family Law", "Corporate Law", "Intellectual Property", "Labor Law"];
+const courts = [
+  "CCMA/Bargaining Council (Arbitration)",
+  "District Magistrate Court",
+  "Regional Magistrate Court",
+  "High Court/Labour Court",
+  "Supreme Court of Appeal/Labour Appeal Court",
+  "Constitutional Court"
+];
+const expertiseAreas = [
+  "Criminal Law",
+  "Family Law",
+  "Corporate Law",
+  "Intellectual Property",
+  "Labor Law"
+];
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -16,15 +29,18 @@ const Register = () => {
     password_confirmation: '',
     name: '',
     role: 'client',
+    admission_enrollment_order: '',
+    good_standing_letter: '',
+    fidelity_fund_certificate: '',
+    id_document: '',
+    practice_address: '',
     preferred_court: '',
-    license_number: '',
     areas_of_expertise: '',
     experience_years: '',
     rate: '',
-    preferred_language: '',
-    budget: '',
-    address: '',           // ✅ added
-    phone_number: '',      // ✅ added
+    engagement_form: '',
+    client_id_document: '',
+    client_proof_of_address: ''
   });
 
   const dispatch = useDispatch();
@@ -47,7 +63,7 @@ const Register = () => {
         } else if (response.payload.role === 'lawyer') {
           navigate('/lawyer-dashboard');
         }
-        navigate('/login'); // Always go to login
+        navigate('/login');
       }
     });
   };
@@ -55,8 +71,9 @@ const Register = () => {
   return (
     <div className="bg-gray-50">
       <Navbar />
-      <div 
-        className="min-h-screen bg-cover bg-center flex flex-col justify-center items-center relative" 
+
+      <div
+        className="min-h-screen bg-cover bg-center flex flex-col justify-center items-center relative"
         style={{ backgroundImage: `url(${RegisterBackground})` }}
       >
         <div className="absolute inset-0 bg-black opacity-50 z-0"></div>
@@ -68,7 +85,7 @@ const Register = () => {
             <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Password" required className="mb-4 p-3 w-full border rounded" />
             <input type="password" name="password_confirmation" value={formData.password_confirmation} onChange={handleChange} placeholder="Confirm Password" required className="mb-4 p-3 w-full border rounded" />
             <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Full Name" required className="mb-4 p-3 w-full border rounded" />
-            
+
             <select name="role" value={formData.role} onChange={handleChange} className="mb-4 p-3 w-full border rounded">
               <option value="client">Client</option>
               <option value="lawyer">Lawyer</option>
@@ -76,43 +93,41 @@ const Register = () => {
 
             {formData.role === 'lawyer' && (
               <>
-                <input type="text" name="license_number" value={formData.license_number} onChange={handleChange} placeholder="License Number" className="mb-4 p-3 w-full border rounded" />
-                <input type="text" name="rate" value={formData.rate} onChange={handleChange} placeholder="Rate" className="mb-4 p-3 w-full border rounded" />
-                
-                <select name="areas_of_expertise" value={formData.areas_of_expertise} onChange={handleChange} className="mb-4 p-3 w-full border rounded">
-                  <option value="">Select Area of Expertise</option>
-                  {expertiseAreas.map((area, index) => (
-                    <option key={index} value={area}>{area}</option>
-                  ))}
-                </select>
-                
-                <input type="number" name="experience_years" value={formData.experience_years} onChange={handleChange} placeholder="Years of Experience" className="mb-4 p-3 w-full border rounded" />
-                
-                <select name="preferred_court" value={formData.preferred_court} onChange={handleChange} className="mb-4 p-3 w-full border rounded">
+                <input type="text" name="admission_enrollment_order" value={formData.admission_enrollment_order} onChange={handleChange} placeholder="Admission and Enrollment Order" required className="mb-4 p-3 w-full border rounded" />
+                <input type="text" name="good_standing_letter" value={formData.good_standing_letter} onChange={handleChange} placeholder="Letter of Good Standing" required className="mb-4 p-3 w-full border rounded" />
+                <input type="text" name="fidelity_fund_certificate" value={formData.fidelity_fund_certificate} onChange={handleChange} placeholder="Fidelity Fund Certificate" required className="mb-4 p-3 w-full border rounded" />
+                <input type="text" name="id_document" value={formData.id_document} onChange={handleChange} placeholder="Identity Document / Passport" required className="mb-4 p-3 w-full border rounded" />
+                <input type="text" name="practice_address" value={formData.practice_address} onChange={handleChange} placeholder="Practice Address" required className="mb-4 p-3 w-full border rounded" />
+                <input type="number" name="experience_years" value={formData.experience_years} onChange={handleChange} placeholder="Years of Experience" required className="mb-4 p-3 w-full border rounded" />
+                <input type="number" name="rate" value={formData.rate} onChange={handleChange} placeholder="Rate" required className="mb-4 p-3 w-full border rounded" />
+                <select name="preferred_court" value={formData.preferred_court} onChange={handleChange} className="mb-4 p-3 w-full border rounded" required>
                   <option value="">Select Preferred Court</option>
                   {courts.map((court, index) => (
                     <option key={index} value={court}>{court}</option>
                   ))}
                 </select>
-
-                <input type="text" name="address" value={formData.address} onChange={handleChange} placeholder="Business Address" className="mb-4 p-3 w-full border rounded" />
-                <input type="text" name="phone_number" value={formData.phone_number} onChange={handleChange} placeholder="Phone Number" className="mb-4 p-3 w-full border rounded" />
+                <select name="areas_of_expertise" value={formData.areas_of_expertise} onChange={handleChange} className="mb-4 p-3 w-full border rounded" required>
+                  <option value="">Select Area of Expertise</option>
+                  {expertiseAreas.map((area, index) => (
+                    <option key={index} value={area}>{area}</option>
+                  ))}
+                </select>
               </>
             )}
 
             {formData.role === 'client' && (
               <>
-                <input type="text" name="preferred_language" value={formData.preferred_language} onChange={handleChange} placeholder="Preferred Language" className="mb-4 p-3 w-full border rounded" />
-                <input type="text" name="budget" value={formData.budget} onChange={handleChange} placeholder="Budget" className="mb-4 p-3 w-full border rounded" />
+                <input type="text" name="engagement_form" value={formData.engagement_form} onChange={handleChange} placeholder="Engagement Form" required className="mb-4 p-3 w-full border rounded" />
+                <input type="text" name="client_id_document" value={formData.client_id_document} onChange={handleChange} placeholder="Identity Document" required className="mb-4 p-3 w-full border rounded" />
+                <input type="text" name="client_proof_of_address" value={formData.client_proof_of_address} onChange={handleChange} placeholder="Proof of Address" required className="mb-4 p-3 w-full border rounded" />
               </>
             )}
 
-            <button type="submit" className="bg-amber-500 text-white p-3 w-full rounded mt-4 hover:bg-amber-400">
-              Register
-            </button>
+            <button type="submit" className="bg-amber-500 text-white p-3 w-full rounded mt-4 hover:bg-amber-400">Register</button>
           </form>
         </div>
       </div>
+
       <Footer />
     </div>
   );
