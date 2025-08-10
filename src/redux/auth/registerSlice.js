@@ -1,16 +1,19 @@
-// src/features/auth/registerSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 export const fetchreg = createAsyncThunk(
   'sign_up/fetchregistration',
-  async (user) => {
+  async (userFormData) => {
     const url = 'http://localhost:3001/signup';
-    const response = await axios.post(url, user);
+    const response = await axios.post(url, userFormData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     localStorage.setItem('token', response.headers['Authorization']);
     localStorage.setItem('data', JSON.stringify(response.data.user));
     return response.data.user;
-  },
+  }
 );
 
 const initialState = {

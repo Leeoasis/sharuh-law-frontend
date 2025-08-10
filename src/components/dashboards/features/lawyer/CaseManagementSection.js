@@ -2,14 +2,23 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { acceptCase } from '../../../../redux/features/caseSlice';
 
-const CaseManagementSection = ({ cases, loading, error, allowAccept = false }) => {
+const CaseManagementSection = ({ cases = [], loading, error, allowAccept = false, onAccept }) => {
   const dispatch = useDispatch();
   const { profile } = useSelector((state) => state.user);
 
   const handleAccept = (caseId) => {
     if (!profile?.id) return;
-    dispatch(acceptCase({ caseId, lawyerId: profile.id }));
+    if (onAccept) {
+      onAccept(caseId);
+    } else {
+      dispatch(acceptCase({ caseId, lawyerId: profile.id }));
+    }
   };
+
+  // ✅ Only show claimed cases unless allowAccept is true
+  const filteredCases = allowAccept
+    ? cases
+    : (cases || []).filter((c) => c.status === 'claimed');
 
   return (
     <div>
@@ -21,15 +30,15 @@ const CaseManagementSection = ({ cases, loading, error, allowAccept = false }) =
         <p className="text-gray-300">Loading...</p>
       ) : error ? (
         <p className="text-red-500">{error}</p>
-      ) : cases.length === 0 ? (
+      ) : filteredCases.length === 0 ? (
         <p className="text-gray-400">
           {allowAccept
             ? 'No open cases matching your expertise at the moment.'
-            : 'No cases assigned to you yet.'}
+            : 'You have no active claimed cases yet.'}
         </p>
       ) : (
         <ul className="space-y-4">
-          {cases.map((caseItem) => (
+          {filteredCases.map((caseItem) => (
             <li key={caseItem.id} className="bg-secondary-light p-4 rounded-lg shadow">
               <h3 className="text-xl font-bold text-primary">{caseItem.title}</h3>
               <p className="text-white mt-1">Description: {caseItem.description}</p>

@@ -55,26 +55,20 @@ const LawyerDashboard = () => {
     availableCases,
   } = useSelector((state) => state.case);
 
-  // Rehydrate user from localStorage
   useEffect(() => {
     dispatch(rehydrateUser());
   }, [dispatch]);
 
-  // Fetch profile on load
   useEffect(() => {
     if (profile?.id && profile?.role === 'lawyer') {
       dispatch(fetchProfile({ role: profile.role, id: profile.id }));
     }
   }, [dispatch, profile?.id, profile?.role]);
 
-  // Fetch data based on dashboard section
   useEffect(() => {
     if (!profile?.id) return;
 
-    if (selectedOption === 'Client Management') {
-      dispatch(fetchClients({ lawyer_id: profile.id }));
-    }
-    if (selectedOption === 'Case Management') {
+    if (selectedOption === 'Client Management' || selectedOption === 'Case Management') {
       dispatch(fetchCases(profile.id));
     }
     if (selectedOption === 'Available Cases') {
@@ -85,14 +79,18 @@ const LawyerDashboard = () => {
     }
   }, [selectedOption, dispatch, profile?.id, profile?.role]);
 
-  // Fetch stored notifications
   useEffect(() => {
     if (profile?.id) {
       dispatch(fetchNotifications(profile.id));
     }
   }, [dispatch, profile?.id]);
 
-  // Subscribe to real-time ActionCable notifications
+  useEffect(() => {
+    if (profile?.role === "lawyer" && profile.approved === false) {
+      navigate("/pending-approval");
+    }
+  }, [profile, navigate]);
+
   useEffect(() => {
     if (profile?.id) {
       const subscription = SubscribeToNotifications(profile.id, (notification) => {
@@ -102,7 +100,6 @@ const LawyerDashboard = () => {
     }
   }, [profile?.id]);
 
-  // Auto-clear flash messages
   useEffect(() => {
     if (successMessage) {
       setTimeout(() => {
@@ -142,27 +139,33 @@ const LawyerDashboard = () => {
       .then((res) => {
         if (res.meta.requestStatus === 'fulfilled') {
           toast.success("Case accepted successfully!");
-          dispatch(fetchAvailableCases(profile.id)); // refresh list
-          dispatch(fetchCases(profile.id)); // refresh claimed
+          dispatch(fetchAvailableCases(profile.id));
+          dispatch(fetchCases(profile.id));
         } else {
           toast.error("Failed to accept case.");
         }
       });
   };
 
+  const hasAcceptedCases = cases && cases.length > 0;
+
   const renderContent = () => {
     const allNotifications = [...liveNotifications, ...storedNotifications];
     const contentMap = {
-      'Client Management': (
+      'Client Management': hasAcceptedCases ? (
         <ClientManagementSection clients={clients} loading={loading} error={error} />
+      ) : (
+        <p className="text-white">You need to accept a case before viewing clients.</p>
       ),
-      'Case Management': (
+      'Case Management': hasAcceptedCases ? (
         <CaseManagementSection
           cases={cases}
           loading={loading}
           error={error}
           allowAccept={false}
         />
+      ) : (
+        <p className="text-white">You need to accept a case before viewing case details.</p>
       ),
       'Available Cases': (
         <CaseManagementSection

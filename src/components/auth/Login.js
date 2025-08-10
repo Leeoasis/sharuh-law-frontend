@@ -29,9 +29,12 @@ const Login = () => {
         if (response.payload.role === 'client') {
           navigate('/client-dashboard');
         } else if (response.payload.role === 'lawyer') {
-          navigate('/lawyer-dashboard');
-        }
-        else if (response.payload.role === 'admin') {
+          if (response.payload.approved) {
+            navigate('/lawyer-dashboard');
+          } else {
+            navigate('/pending-approval');
+          }
+        } else if (response.payload.role === 'admin') {
           navigate('/admin-dashboard');
         }
       }

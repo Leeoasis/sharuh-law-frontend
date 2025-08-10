@@ -9,9 +9,7 @@ import {
   clearSuccessMessage,
   rehydrateUser,
 } from "../../redux/features/userSlice";
-import {
-  fetchUnassignedCasesForAdmin,
-} from "../../redux/features/caseSlice";
+import { fetchUnassignedCasesForAdmin } from "../../redux/features/caseSlice";
 import { logout } from "../../redux/actions/logout";
 import { useNavigate } from "react-router-dom";
 import Footer from "../landingSite/Footer";
@@ -78,6 +76,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (liveNotifications.length > 0 && profile?.id && profile?.role === "admin") {
       dispatch(fetchUnassignedCasesForAdmin(profile.id));
+      dispatch(fetchLawyers());
     }
   }, [liveNotifications.length]);
 
@@ -104,8 +103,8 @@ const AdminDashboard = () => {
     dispatch(updateProfile({ id: lawyer.id, profileData: { user: updatedData } }))
       .then((res) => {
         if (res.meta.requestStatus === "fulfilled") {
-          toast.success(`${lawyer.name} has been approved`);
-          dispatch(fetchLawyers()); // ✅ Refresh the lawyer list
+          toast.success(`${lawyer.name} has been ${approved ? "approved" : "rejected"}`);
+          dispatch(fetchLawyers());
         } else {
           toast.error("Approval failed");
         }

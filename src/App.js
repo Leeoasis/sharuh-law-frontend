@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -13,7 +14,8 @@ import ClientDashboard from './components/dashboards/ClientDashboard';
 import LawyerDashboard from './components/dashboards/LawyerDashboard';
 import About from './components/landingSite/About';
 import Contact from './components/landingSite/Contact';
-import AdminDashboard from './components/dashboards/AdminDashboard'; // Admin Dashboard
+import AdminDashboard from './components/dashboards/AdminDashboard';
+import PendingApproval from './components/auth/PendingApproval';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -36,6 +38,7 @@ const App = () => {
           <Route path="/admin-dashboard" element={<AdminDashboard />} /> {/* Admin Dashboard */}
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/pending-approval" element={<PendingApproval />} />
         </Routes>
       </>
     </Router>

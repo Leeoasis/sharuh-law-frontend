@@ -19,7 +19,7 @@ const Contact = () => {
         {/* Content */}
         <div className="relative z-10 text-center px-6 py-8 max-w-3xl mx-auto">
           <h1 className="text-5xl font-extrabold text-amber-500 drop-shadow-lg mb-4 animate-fade-in">
-            Yonela is b....
+            Contact Us
           </h1>
           <p className="text-lg md:text-xl text-gray-300 mb-6 animate-slide-up">
             We're here to help. Reach out to us with any questions or concerns.
