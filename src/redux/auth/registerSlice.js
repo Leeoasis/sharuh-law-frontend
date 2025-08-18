@@ -4,7 +4,7 @@ import axios from 'axios';
 export const fetchreg = createAsyncThunk(
   'sign_up/fetchregistration',
   async (userFormData) => {
-    const url = 'http://localhost:3001/signup';
+    const url = 'https://sharuh-law-backend.onrender.com/signup';
     const response = await axios.post(url, userFormData, {
       headers: {
         'Content-Type': 'multipart/form-data',

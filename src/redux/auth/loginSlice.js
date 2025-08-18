@@ -4,7 +4,7 @@ import axios from 'axios';
 export const fetchlogin = createAsyncThunk(
   'login/fetchlogin',
   async (user) => {
-    const url = 'http://127.0.0.1:3001/login';
+    const url = 'https://sharuh-law-backend.onrender.com/login';
     const response = await axios.post(url, { user });
     localStorage.setItem('token', response.headers.get('Authorization'));
     localStorage.setItem('data', JSON.stringify(response.data.user));
