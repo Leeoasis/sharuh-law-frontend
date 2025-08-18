@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchLawyers,
-  fetchClients,
   updateProfile,
   fetchNotifications,
   fetchProfile,
@@ -16,8 +15,8 @@ import Footer from "../landingSite/Footer";
 import Header from "../dashboards/features/lawyer/Header";
 import Sidebar from "../dashboards/features/admin/Sidebar";
 import SubscribeToNotifications from "../dashboards/features/lawyer/Notifications";
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import PanelistSection from "../dashboards/features/admin/PanelistSection";
 import CaseMatchSection from "../dashboards/features/admin/CaseMatchSection";
@@ -33,7 +32,6 @@ const AdminDashboard = () => {
 
   const {
     lawyers,
-    clients,
     profile,
     loading,
     notifications: storedNotifications,
@@ -50,7 +48,6 @@ const AdminDashboard = () => {
     if (profile?.id && profile?.role === "admin") {
       dispatch(fetchProfile({ role: "admin", id: profile.id }));
       dispatch(fetchLawyers());
-      dispatch(fetchClients());
       dispatch(fetchUnassignedCasesForAdmin(profile.id));
       dispatch(fetchNotifications(profile.id));
     }
@@ -78,7 +75,7 @@ const AdminDashboard = () => {
       dispatch(fetchUnassignedCasesForAdmin(profile.id));
       dispatch(fetchLawyers());
     }
-  }, [liveNotifications.length]);
+  }, [liveNotifications.length, dispatch, profile?.id, profile?.role]);
 
   const handleLogout = () => {
     dispatch(logout());
