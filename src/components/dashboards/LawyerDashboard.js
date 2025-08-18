@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from "../../redux/actions/logout";
 import {
-  fetchClients,
   fetchProfile,
   updateProfile,
   clearSuccessMessage,
@@ -55,16 +54,19 @@ const LawyerDashboard = () => {
     availableCases,
   } = useSelector((state) => state.case);
 
+  // Rehydrate user on mount
   useEffect(() => {
     dispatch(rehydrateUser());
   }, [dispatch]);
 
+  // Fetch profile on login
   useEffect(() => {
     if (profile?.id && profile?.role === 'lawyer') {
       dispatch(fetchProfile({ role: profile.role, id: profile.id }));
     }
   }, [dispatch, profile?.id, profile?.role]);
 
+  // Fetch cases/available cases depending on selection
   useEffect(() => {
     if (!profile?.id) return;
 
@@ -79,18 +81,21 @@ const LawyerDashboard = () => {
     }
   }, [selectedOption, dispatch, profile?.id, profile?.role]);
 
+  // Fetch notifications
   useEffect(() => {
     if (profile?.id) {
       dispatch(fetchNotifications(profile.id));
     }
   }, [dispatch, profile?.id]);
 
+  // Redirect unapproved lawyers
   useEffect(() => {
     if (profile?.role === "lawyer" && profile.approved === false) {
       navigate("/pending-approval");
     }
   }, [profile, navigate]);
 
+  // Live notifications subscription
   useEffect(() => {
     if (profile?.id) {
       const subscription = SubscribeToNotifications(profile.id, (notification) => {
@@ -100,11 +105,13 @@ const LawyerDashboard = () => {
     }
   }, [profile?.id]);
 
+  // Clear success message after 3s
   useEffect(() => {
     if (successMessage) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         dispatch(clearSuccessMessage());
       }, 3000);
+      return () => clearTimeout(timer);
     }
   }, [successMessage, dispatch]);
 
@@ -127,14 +134,12 @@ const LawyerDashboard = () => {
   };
 
   const handleProfileUpdate = (profileData) => {
-    const id = profile.id;
-    if (id) {
-      const formattedProfileData = { user: profileData };
-      dispatch(updateProfile({ id, profileData: formattedProfileData }));
-    }
+    if (!profile?.id) return;
+    dispatch(updateProfile({ id: profile.id, profileData: { user: profileData } }));
   };
 
   const handleCaseAccept = (caseId) => {
+    if (!profile?.id) return;
     dispatch(acceptCase({ caseId, lawyerId: profile.id }))
       .then((res) => {
         if (res.meta.requestStatus === 'fulfilled') {
@@ -148,9 +153,9 @@ const LawyerDashboard = () => {
   };
 
   const hasAcceptedCases = cases && cases.length > 0;
+  const allNotifications = [...liveNotifications, ...storedNotifications];
 
   const renderContent = () => {
-    const allNotifications = [...liveNotifications, ...storedNotifications];
     const contentMap = {
       'Client Management': hasAcceptedCases ? (
         <ClientManagementSection clients={clients} loading={loading} error={error} />
@@ -229,7 +234,7 @@ const LawyerDashboard = () => {
           <Header
             handleLogout={handleLogout}
             profile={profile}
-            notifications={[...liveNotifications, ...storedNotifications]}
+            notifications={allNotifications}
           />
           <div className="bg-secondary shadow-lg rounded-lg p-4 lg:p-6 flex-grow">
             {renderContent()}
