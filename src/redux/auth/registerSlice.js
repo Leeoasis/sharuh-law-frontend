@@ -1,17 +1,27 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
+const API_URL =
+  (import.meta?.env?.VITE_API_URL) ||
+  process.env.REACT_APP_API_URL ||
+  'https://sharuh-law-backend.onrender.com';
+
 export const fetchreg = createAsyncThunk(
   'sign_up/fetchregistration',
-  async (userFormData) => {
-    const url = 'https://sharuh-law-backend.onrender.com/signup';
-    const response = await axios.post(url, userFormData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+  async (formData) => {
+    const url = `${API_URL}/signup`;
+    // Don’t manually set Content-Type when sending FormData
+    const response = await axios.post(url, formData, {
+      headers: { Accept: 'application/json' },
     });
-    localStorage.setItem('token', response.headers['Authorization']);
-    localStorage.setItem('data', JSON.stringify(response.data.user));
+
+    // Axios lowercases header keys
+    const token = response.headers?.authorization;
+    if (token) localStorage.setItem('token', token);
+    if (response?.data?.user) {
+      localStorage.setItem('data', JSON.stringify(response.data.user));
+    }
+
     return response.data.user;
   }
 );
@@ -25,6 +35,7 @@ const initialState = {
 const registrationSlice = createSlice({
   name: 'sign_up',
   initialState,
+  reducers: {},
   extraReducers: (builder) => {
     builder.addCase(fetchreg.pending, (state) => {
       state.isLoading = true;

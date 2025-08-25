@@ -59,10 +59,12 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Build FormData with user[...] keys (matches backend controller)
     const data = new FormData();
     for (const key in formData) {
-      if (formData[key] !== null && formData[key] !== undefined) {
-        data.append(`registration[${key}]`, formData[key]);
+      if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
+        data.append(`user[${key}]`, formData[key]);
       }
     }
 
@@ -72,7 +74,7 @@ const Register = () => {
       }
     });
   };
-  
+
   return (
     <div className="bg-gray-50">
       <Navbar />
@@ -104,28 +106,10 @@ const Register = () => {
                 <input name="fidelity_fund_certificate" type="file" onChange={handleChange} required className="mb-4 p-3 w-full border rounded" />
                 <label className="block mb-2 text-sm">Identity Document</label>
                 <input name="id_document" type="file" onChange={handleChange} required className="mb-4 p-3 w-full border rounded" />
-                {/* Additional License Number Field */}
                 <label className="block mb-2 text-sm">License Number</label>
-                <input
-                  name="license_number"
-                  type="text"
-                  value={formData.license_number}
-                  onChange={handleChange}
-                  placeholder="License Number"
-                  required
-                  className="mb-4 p-3 w-full border rounded"
-                />
-                {/* Phone Number Field */}
+                <input name="license_number" type="text" value={formData.license_number} onChange={handleChange} placeholder="License Number" required className="mb-4 p-3 w-full border rounded" />
                 <label className="block mb-2 text-sm">Phone Number</label>
-                <input
-                  name="phone_number"
-                  type="tel"
-                  value={formData.phone_number}
-                  onChange={handleChange}
-                  placeholder="+27821234567"
-                  required
-                  className="mb-4 p-3 w-full border rounded"
-                />
+                <input name="phone_number" type="tel" value={formData.phone_number} onChange={handleChange} placeholder="+27821234567" required className="mb-4 p-3 w-full border rounded" />
                 <input name="practice_address" type="text" value={formData.practice_address} onChange={handleChange} placeholder="Practice Address" required className="mb-4 p-3 w-full border rounded" />
                 <input name="experience_years" type="number" value={formData.experience_years} onChange={handleChange} placeholder="Years of Experience" required className="mb-4 p-3 w-full border rounded" />
                 <input name="rate" type="number" value={formData.rate} onChange={handleChange} placeholder="Hourly Rate" required className="mb-4 p-3 w-full border rounded" />
