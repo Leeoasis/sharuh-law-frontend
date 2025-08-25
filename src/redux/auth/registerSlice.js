@@ -1,28 +1,38 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const API_URL =
-  (import.meta?.env?.VITE_API_URL) ||
-  process.env.REACT_APP_API_URL ||
-  'https://sharuh-law-backend.onrender.com';
+// Direct backend API URL (no env vars to avoid Netlify build issues)
+const API_URL = 'https://sharuh-law-backend.onrender.com';
 
 export const fetchreg = createAsyncThunk(
   'sign_up/fetchregistration',
-  async (formData) => {
-    const url = `${API_URL}/signup`;
-    // Don’t manually set Content-Type when sending FormData
-    const response = await axios.post(url, formData, {
-      headers: { Accept: 'application/json' },
-    });
+  async (formData, { rejectWithValue }) => {
+    try {
+      const url = `${API_URL}/signup`;
 
-    // Axios lowercases header keys
-    const token = response.headers?.authorization;
-    if (token) localStorage.setItem('token', token);
-    if (response?.data?.user) {
-      localStorage.setItem('data', JSON.stringify(response.data.user));
+      // Do NOT set Content-Type manually → Axios adds correct boundary
+      const response = await axios.post(url, formData, {
+        headers: { Accept: 'application/json' },
+      });
+
+      // Axios lowercases header keys
+      const token = response.headers?.authorization;
+      if (token) localStorage.setItem('token', token);
+      if (response?.data?.user) {
+        localStorage.setItem('data', JSON.stringify(response.data.user));
+      }
+
+      return response.data.user;
+    } catch (err) {
+      if (err.response) {
+        // Return server error payload so component can display messages
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+        });
+      }
+      return rejectWithValue({ status: 0, message: err.message });
     }
-
-    return response.data.user;
   }
 );
 
@@ -30,6 +40,7 @@ const initialState = {
   sign_up: {},
   error: undefined,
   isLoading: false,
+  serverErrors: null, // Capture full server error payload (422 messages, etc.)
 };
 
 const registrationSlice = createSlice({
@@ -37,17 +48,21 @@ const registrationSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(fetchreg.pending, (state) => {
-      state.isLoading = true;
-    });
-    builder.addCase(fetchreg.fulfilled, (state, action) => {
-      state.isLoading = false;
-      state.sign_up = action.payload;
-    });
-    builder.addCase(fetchreg.rejected, (state, action) => {
-      state.isLoading = false;
-      state.error = action.error.message;
-    });
+    builder
+      .addCase(fetchreg.pending, (state) => {
+        state.isLoading = true;
+        state.error = undefined;
+        state.serverErrors = null;
+      })
+      .addCase(fetchreg.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.sign_up = action.payload;
+      })
+      .addCase(fetchreg.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error?.message;
+        state.serverErrors = action.payload || null;
+      });
   },
 });
 
