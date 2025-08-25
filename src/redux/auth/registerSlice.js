@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// Direct backend API URL (no env vars to avoid Netlify build issues)
+// Hardcode backend URL so Netlify env vars aren’t needed
 const API_URL = 'https://sharuh-law-backend.onrender.com';
 
 export const fetchreg = createAsyncThunk(
@@ -10,7 +10,6 @@ export const fetchreg = createAsyncThunk(
     try {
       const url = `${API_URL}/signup`;
 
-      // Do NOT set Content-Type manually → Axios adds correct boundary
       const response = await axios.post(url, formData, {
         headers: { Accept: 'application/json' },
       });
@@ -25,7 +24,6 @@ export const fetchreg = createAsyncThunk(
       return response.data.user;
     } catch (err) {
       if (err.response) {
-        // Return server error payload so component can display messages
         return rejectWithValue({
           status: err.response.status,
           data: err.response.data,
@@ -40,7 +38,7 @@ const initialState = {
   sign_up: {},
   error: undefined,
   isLoading: false,
-  serverErrors: null, // Capture full server error payload (422 messages, etc.)
+  serverErrors: null,
 };
 
 const registrationSlice = createSlice({
