@@ -8,31 +8,25 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
-
-  const getLinkClass = (path) => {
-    return location.pathname === path
+  const getLinkClass = (path) =>
+    location.pathname === path
       ? "bg-amber-400 text-gray-900 px-4 py-2 rounded transition duration-300 flex items-center"
       : "hover:text-amber-400 transition duration-300 flex items-center";
-  };
 
   return (
     <nav className="fixed top-0 left-0 w-full bg-gray-900 text-white shadow-lg z-50">
       <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
-        {/* Logo */}
-        <Link to="/" className="flex items-center space-x-2">
+        {/* Logo + Name */}
+        <Link to="/" className="flex items-center space-x-3">
           <img
             src={Logo}
             alt="Legal Suise Logo"
-            className="h-10 w-auto object-contain"
+            className="h-20 w-auto object-contain" // ✅ Larger logo
           />
-          <span className="text-xl font-bold text-amber-400 hidden sm:inline">
+          <span className="text-xl font-bold text-amber-400">
             Legal Suise
           </span>
         </Link>
