@@ -1,23 +1,34 @@
-// src/features/auth/authSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  data: [],
-  error: undefined,
-  isLoading: false,
-  loggedIn: false,
+  user: null,
+  token: null,
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    update: (state) => {
-      state.data = [JSON.parse(localStorage.getItem('data'))];
-      state.loggedIn = !!localStorage.getItem('data');
+    setAuth: (state, action) => {
+      state.user = action.payload.user;
+      state.token = action.payload.token;
+    },
+    logout: (state) => {
+      state.user = null;
+      state.token = null;
+      localStorage.removeItem('token');
+      localStorage.removeItem('data');
+    },
+    rehydrate: (state) => {
+      const token = localStorage.getItem('token');
+      const user = JSON.parse(localStorage.getItem('data') || 'null');
+      if (token && user) {
+        state.token = token;
+        state.user = user;
+      }
     },
   },
 });
 
-export const { update } = authSlice.actions;
+export const { setAuth, logout, rehydrate } = authSlice.actions;
 export default authSlice.reducer;

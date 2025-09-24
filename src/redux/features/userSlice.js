@@ -54,7 +54,9 @@ export const fetchNotifications = createAsyncThunk(
 export const rehydrateUser = createAsyncThunk(
   'user/rehydrateUser',
   async () => {
-    return JSON.parse(localStorage.getItem('data'));
+    const user = JSON.parse(localStorage.getItem('data'));
+    const token = localStorage.getItem('token');
+    return { ...user, token };
   }
 );
 

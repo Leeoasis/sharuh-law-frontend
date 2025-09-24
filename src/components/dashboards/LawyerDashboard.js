@@ -49,10 +49,8 @@ const LawyerDashboard = () => {
     notifications: storedNotifications,
   } = useSelector((state) => state.user);
 
-  const {
-    cases,
-    availableCases,
-  } = useSelector((state) => state.case);
+  const { cases, availableCases } = useSelector((state) => state.case);
+  const token = useSelector((state) => state.auth?.token); // ✅ added
 
   // Rehydrate user on mount
   useEffect(() => {
@@ -61,14 +59,14 @@ const LawyerDashboard = () => {
 
   // Fetch profile on login
   useEffect(() => {
-    if (profile?.id && profile?.role === 'lawyer') {
+    if (profile?.id && profile?.role === 'lawyer' && token) { // ✅ guard
       dispatch(fetchProfile({ role: profile.role, id: profile.id }));
     }
-  }, [dispatch, profile?.id, profile?.role]);
+  }, [dispatch, profile?.id, profile?.role, token]);
 
   // Fetch cases/available cases depending on selection
   useEffect(() => {
-    if (!profile?.id) return;
+    if (!profile?.id || !token) return; // ✅ guard
 
     if (selectedOption === 'Client Management' || selectedOption === 'Case Management') {
       dispatch(fetchCases(profile.id));
@@ -79,14 +77,14 @@ const LawyerDashboard = () => {
     if (selectedOption === 'Profile') {
       dispatch(fetchProfile({ role: profile.role, id: profile.id }));
     }
-  }, [selectedOption, dispatch, profile?.id, profile?.role]);
+  }, [selectedOption, dispatch, profile?.id, profile?.role, token]);
 
   // Fetch notifications
   useEffect(() => {
-    if (profile?.id) {
+    if (profile?.id && token) { // ✅ guard
       dispatch(fetchNotifications(profile.id));
     }
-  }, [dispatch, profile?.id]);
+  }, [dispatch, profile?.id, token]);
 
   // Redirect unapproved lawyers
   useEffect(() => {
@@ -97,13 +95,13 @@ const LawyerDashboard = () => {
 
   // Live notifications subscription
   useEffect(() => {
-    if (profile?.id) {
+    if (profile?.id && token) { // ✅ guard
       const subscription = SubscribeToNotifications(profile.id, (notification) => {
         setLiveNotifications((prev) => [...prev, notification]);
       });
       return () => subscription.unsubscribe();
     }
-  }, [profile?.id]);
+  }, [profile?.id, token]);
 
   // Clear success message after 3s
   useEffect(() => {

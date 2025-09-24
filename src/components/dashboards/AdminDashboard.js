@@ -39,19 +39,20 @@ const AdminDashboard = () => {
   } = useSelector((state) => state.user);
 
   const { cases } = useSelector((state) => state.case);
+  const token = useSelector((state) => state.auth?.token); // ✅ added
 
   useEffect(() => {
     dispatch(rehydrateUser());
   }, [dispatch]);
 
   useEffect(() => {
-    if (profile?.id && profile?.role === "admin") {
+    if (profile?.id && profile?.role === "admin" && token) { // ✅ guard
       dispatch(fetchProfile({ role: "admin", id: profile.id }));
       dispatch(fetchLawyers());
       dispatch(fetchUnassignedCasesForAdmin(profile.id));
       dispatch(fetchNotifications(profile.id));
     }
-  }, [dispatch, profile?.id, profile?.role]);
+  }, [dispatch, profile?.id, profile?.role, token]);
 
   useEffect(() => {
     if (successMessage) {
@@ -62,20 +63,20 @@ const AdminDashboard = () => {
   }, [successMessage, dispatch]);
 
   useEffect(() => {
-    if (profile?.id) {
+    if (profile?.id && token) { // ✅ guard
       const subscription = SubscribeToNotifications(profile.id, (notification) => {
         setLiveNotifications((prev) => [...prev, notification]);
       });
       return () => subscription.unsubscribe();
     }
-  }, [profile?.id]);
+  }, [profile?.id, token]);
 
   useEffect(() => {
-    if (liveNotifications.length > 0 && profile?.id && profile?.role === "admin") {
+    if (liveNotifications.length > 0 && profile?.id && profile?.role === "admin" && token) { // ✅ guard
       dispatch(fetchUnassignedCasesForAdmin(profile.id));
       dispatch(fetchLawyers());
     }
-  }, [liveNotifications.length, dispatch, profile?.id, profile?.role]);
+  }, [liveNotifications.length, dispatch, profile?.id, profile?.role, token]);
 
   const handleLogout = () => {
     dispatch(logout());

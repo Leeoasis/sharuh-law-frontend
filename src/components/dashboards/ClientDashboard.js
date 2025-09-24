@@ -41,20 +41,21 @@ const ClientDashboard = () => {
     (state) => state.user
   );
   const { cases } = useSelector((state) => state.case);
+  const token = useSelector((state) => state.auth?.token); // ✅ added
 
   useEffect(() => {
     dispatch(rehydrateUser());
   }, [dispatch]);
 
   useEffect(() => {
-    if (!profile?.id) return;
+    if (!profile?.id || !token) return; // ✅ guard added
 
     dispatch(fetchProfile({ role: profile.role, id: profile.id }));
 
     if (selectedOption === "Case Management") {
       dispatch(fetchCases(profile.id));
     }
-  }, [dispatch, profile?.id, profile?.role, selectedOption]);
+  }, [dispatch, profile?.id, profile?.role, selectedOption, token]);
 
   useEffect(() => {
     if (successMessage) {
@@ -65,14 +66,17 @@ const ClientDashboard = () => {
   }, [successMessage, dispatch]);
 
   useEffect(() => {
-    if (profile?.id) {
-      const subscription = SubscribeToNotifications(profile.id, (notification) => {
-        setNotifications((prev) => [...prev, notification]);
-      });
+    if (profile?.id && token) { // ✅ guard added
+      const subscription = SubscribeToNotifications(
+        profile.id,
+        (notification) => {
+          setNotifications((prev) => [...prev, notification]);
+        }
+      );
 
       return () => subscription.unsubscribe();
     }
-  }, [profile?.id]);
+  }, [profile?.id, token]);
 
   const openModal = () => setModalIsOpen(true);
   const closeModal = () => {
@@ -179,7 +183,10 @@ const ClientDashboard = () => {
   return (
     <div className="flex flex-col min-h-screen bg-secondary-light text-white">
       <div className="flex flex-col lg:flex-row flex-grow">
-        <Sidebar selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+        <Sidebar
+          selectedOption={selectedOption}
+          setSelectedOption={setSelectedOption}
+        />
         <div className="flex-1 p-4 lg:p-8">
           <Header handleLogout={handleLogout} profile={profile} />
           <div className="bg-secondary shadow-lg rounded-lg p-4 lg:p-6 flex-grow">

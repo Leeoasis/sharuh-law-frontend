@@ -1,28 +1,33 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-// Hardcode backend URL so Netlify env vars aren’t needed
-const API_URL = 'https://sharuh-law-backend.onrender.com';
+import axiosInstance from '../../api/axiosInstance';
+import { setAuth } from './authSlice';
+import { notifySuccess, notifyError } from '../../utils/NotificationSystem';
 
 export const fetchreg = createAsyncThunk(
   'sign_up/fetchregistration',
-  async (formData, { rejectWithValue }) => {
+  async (formData, { dispatch, rejectWithValue }) => {
     try {
-      const url = `${API_URL}/signup`;
-
-      const response = await axios.post(url, formData, {
-        headers: { Accept: 'application/json' },
+      const response = await axiosInstance.post('/signup', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      // Axios lowercases header keys
-      const token = response.headers?.authorization;
-      if (token) localStorage.setItem('token', token);
-      if (response?.data?.user) {
-        localStorage.setItem('data', JSON.stringify(response.data.user));
+      const { user, token } = response.data;
+
+      if (token) {
+        localStorage.setItem('token', token);
+      }
+      if (user) {
+        localStorage.setItem('data', JSON.stringify(user));
       }
 
-      return response.data.user;
+      if (user && token) {
+        dispatch(setAuth({ user, token }));
+      }
+
+      notifySuccess('Registration successful!');
+      return user;
     } catch (err) {
+      notifyError('Registration failed.');
       if (err.response) {
         return rejectWithValue({
           status: err.response.status,
