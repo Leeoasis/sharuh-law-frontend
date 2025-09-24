@@ -40,7 +40,7 @@ const Navbar = () => {
             <img
               src={Logo}
               alt="Legal Suise Logo"
-              className="h-16 w-auto object-contain rounded-md md:h-14"
+              className="h-12 w-24 object-contain rounded-md md:h-10 md:w-20" // ✅ shorter height, slightly wider
             />
           </div>
           {/* Show name on md+ only */}
