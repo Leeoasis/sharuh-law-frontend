@@ -1,8 +1,7 @@
-
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { update } from './redux/auth/authSlice';
+import { rehydrate } from './redux/auth/authSlice'; // ✅ fixed import
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -22,7 +21,7 @@ const App = () => {
 
   // ✅ Rehydrate Redux state from localStorage on load
   useEffect(() => {
-    dispatch(update());
+    dispatch(rehydrate());
   }, [dispatch]);
 
   return (

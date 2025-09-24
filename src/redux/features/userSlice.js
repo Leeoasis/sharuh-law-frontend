@@ -5,6 +5,7 @@ import { notifySuccess, notifyError } from '../../utils/NotificationSystem';
 export const fetchLawyers = createAsyncThunk(
   'user/fetchLawyers',
   async (criteria) => {
+    console.log("➡️ Calling /api/lawyers with criteria:", criteria);
     const response = await axiosInstance.get('/api/lawyers', { params: criteria });
     return response.data;
   }
@@ -16,6 +17,7 @@ export const fetchClients = createAsyncThunk(
     const { lawyer_id } = criteria;
     const url = lawyer_id ? `/api/lawyer/${lawyer_id}/clients` : '/api/clients';
     const response = await axiosInstance.get(url);
+    console.log('Fetched clients:', response.data); // Debug log
     return response.data;
   }
 );
@@ -54,7 +56,9 @@ export const fetchNotifications = createAsyncThunk(
 export const rehydrateUser = createAsyncThunk(
   'user/rehydrateUser',
   async () => {
-    return JSON.parse(localStorage.getItem('data'));
+    const user = JSON.parse(localStorage.getItem('data'));
+    const token = localStorage.getItem('token');
+    return { ...user, token };
   }
 );
 

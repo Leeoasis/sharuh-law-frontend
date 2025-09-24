@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { logout } from "../../redux/actions/logout";
+import { logout } from "../../redux/auth/authSlice";
 import {
-  fetchClients,
   fetchProfile,
   updateProfile,
   clearSuccessMessage,
@@ -50,61 +49,46 @@ const LawyerDashboard = () => {
     notifications: storedNotifications,
   } = useSelector((state) => state.user);
 
-  const {
-    cases,
-    availableCases,
-  } = useSelector((state) => state.case);
+  const { cases, availableCases } = useSelector((state) => state.case);
+  const token = useSelector((state) => state.auth?.token);
 
+  // ✅ Rehydrate and then fetch all required data
   useEffect(() => {
-    dispatch(rehydrateUser());
+    dispatch(rehydrateUser()).then((res) => {
+      const data = res.payload;
+      if (data?.role === "lawyer" && data?.id) {
+        dispatch(fetchProfile({ role: "lawyer", id: data.id }));
+        dispatch(fetchCases(data.id));
+        dispatch(fetchAvailableCases(data.id));
+        dispatch(fetchNotifications(data.id));
+      }
+    });
   }, [dispatch]);
 
-  useEffect(() => {
-    if (profile?.id && profile?.role === 'lawyer') {
-      dispatch(fetchProfile({ role: profile.role, id: profile.id }));
-    }
-  }, [dispatch, profile?.id, profile?.role]);
-
-  useEffect(() => {
-    if (!profile?.id) return;
-
-    if (selectedOption === 'Client Management' || selectedOption === 'Case Management') {
-      dispatch(fetchCases(profile.id));
-    }
-    if (selectedOption === 'Available Cases') {
-      dispatch(fetchAvailableCases(profile.id));
-    }
-    if (selectedOption === 'Profile') {
-      dispatch(fetchProfile({ role: profile.role, id: profile.id }));
-    }
-  }, [selectedOption, dispatch, profile?.id, profile?.role]);
-
-  useEffect(() => {
-    if (profile?.id) {
-      dispatch(fetchNotifications(profile.id));
-    }
-  }, [dispatch, profile?.id]);
-
+  // Redirect unapproved lawyers
   useEffect(() => {
     if (profile?.role === "lawyer" && profile.approved === false) {
       navigate("/pending-approval");
     }
   }, [profile, navigate]);
 
+  // Live notifications
   useEffect(() => {
-    if (profile?.id) {
+    if (profile?.id && token) {
       const subscription = SubscribeToNotifications(profile.id, (notification) => {
         setLiveNotifications((prev) => [...prev, notification]);
       });
       return () => subscription.unsubscribe();
     }
-  }, [profile?.id]);
+  }, [profile?.id, token]);
 
+  // Clear success message
   useEffect(() => {
     if (successMessage) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         dispatch(clearSuccessMessage());
       }, 3000);
+      return () => clearTimeout(timer);
     }
   }, [successMessage, dispatch]);
 
@@ -123,18 +107,16 @@ const LawyerDashboard = () => {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate("/");
+    navigate("/login");
   };
 
   const handleProfileUpdate = (profileData) => {
-    const id = profile.id;
-    if (id) {
-      const formattedProfileData = { user: profileData };
-      dispatch(updateProfile({ id, profileData: formattedProfileData }));
-    }
+    if (!profile?.id) return;
+    dispatch(updateProfile({ id: profile.id, profileData: { user: profileData } }));
   };
 
   const handleCaseAccept = (caseId) => {
+    if (!profile?.id) return;
     dispatch(acceptCase({ caseId, lawyerId: profile.id }))
       .then((res) => {
         if (res.meta.requestStatus === 'fulfilled') {
@@ -148,9 +130,9 @@ const LawyerDashboard = () => {
   };
 
   const hasAcceptedCases = cases && cases.length > 0;
+  const allNotifications = [...liveNotifications, ...storedNotifications];
 
   const renderContent = () => {
-    const allNotifications = [...liveNotifications, ...storedNotifications];
     const contentMap = {
       'Client Management': hasAcceptedCases ? (
         <ClientManagementSection clients={clients} loading={loading} error={error} />
@@ -229,7 +211,7 @@ const LawyerDashboard = () => {
           <Header
             handleLogout={handleLogout}
             profile={profile}
-            notifications={[...liveNotifications, ...storedNotifications]}
+            notifications={allNotifications}
           />
           <div className="bg-secondary shadow-lg rounded-lg p-4 lg:p-6 flex-grow">
             {renderContent()}
