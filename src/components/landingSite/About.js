@@ -4,7 +4,7 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import { FaShieldAlt, FaGavel, FaHandshake } from "react-icons/fa";
 
-import AboutBackground from "../../assets/Images/aboutb.jpeg";
+import AboutBackground from "../../assets/Images/aboutB.jpeg";
 
 // Section images
 import StoryImage from "../../assets/Images/ourstory.png";
