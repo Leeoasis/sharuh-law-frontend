@@ -33,23 +33,29 @@ const Navbar = () => {
           : "bg-gray-900/30 backdrop-blur-md"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-20">
-        {/* Logo + Name */}
+      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center h-20 relative">
+        {/* Logo (left) */}
         <Link to="/" className="flex items-center space-x-3">
           <div className="p-1 bg-white/10 backdrop-blur-sm rounded-lg">
             <img
               src={Logo}
               alt="Legal Suise Logo"
-              className="h-12 w-24 object-contain rounded-md md:h-10 md:w-20" // ✅ shorter height, slightly wider
+              className="h-12 w-24 object-contain rounded-md md:h-10 md:w-20"
             />
           </div>
-          {/* Show name on md+ only */}
-          <span className="hidden md:inline text-xl font-bold text-amber-400">
-            Legal Suise
-          </span>
         </Link>
 
-        {/* Desktop Links */}
+        {/* Centered Brand Name (desktop only) */}
+        <span
+          className="absolute left-1/2 transform -translate-x-1/2 hidden md:inline 
+          text-2xl font-extrabold tracking-wide bg-clip-text text-transparent 
+          bg-gradient-to-r from-amber-400 to-yellow-300 drop-shadow-sm"
+          style={{ fontFamily: "'Merriweather', serif" }}
+        >
+          Legal Suise
+        </span>
+
+        {/* Desktop Links (right) */}
         <div className="hidden md:flex space-x-8">
           <Link to="/" className={getLinkClass("/")}>
             Home
@@ -68,7 +74,7 @@ const Navbar = () => {
           </Link>
         </div>
 
-        {/* Mobile Menu Toggle */}
+        {/* Mobile Menu Toggle (right) */}
         <button
           className="md:hidden flex items-center"
           onClick={toggleMobileMenu}
