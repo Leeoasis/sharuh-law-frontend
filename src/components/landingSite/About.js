@@ -139,9 +139,9 @@ const About = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section
-        className="relative flex items-center justify-center h-[70vh] bg-cover bg-center animate-fade-in"
-        style={{ backgroundImage: `url(${AboutBackground})` }}
+     <section
+        className="relative flex items-center justify-center h-[70vh] bg-cover bg-center animate-fade-in pt-16 md:pt-20"
+       style={{ backgroundImage: `url(${AboutBackground})` }}
       >
         <div className="absolute inset-0 bg-blue-900/70"></div>
         <div className="relative z-10 text-center px-6 md:px-16 lg:px-24 py-8 max-w-3xl mx-auto animate-slide-up">

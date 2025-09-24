@@ -107,7 +107,7 @@ const Landing = () => {
 
       {/* Hero Section */}
       <div
-        className="relative flex items-center justify-center h-[100vh] bg-cover bg-center animate-fade-in"
+        className="relative flex items-center justify-center h-[100vh] bg-cover bg-center animate-fade-in pt-16 md:pt-20"
         style={{ backgroundImage: `url(${MessageImage})` }}
       >
         <div className="absolute inset-0 bg-blue-900/70"></div>
