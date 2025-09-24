@@ -9,7 +9,7 @@ import {
   rehydrateUser,
 } from "../../redux/features/userSlice";
 import { fetchUnassignedCasesForAdmin } from "../../redux/features/caseSlice";
-import { logout } from "../../redux/actions/logout";
+import { logout } from "../../redux/auth/authSlice"; // ✅ updated
 import { useNavigate } from "react-router-dom";
 import Footer from "../landingSite/Footer";
 import Header from "../dashboards/features/lawyer/Header";
@@ -39,14 +39,15 @@ const AdminDashboard = () => {
   } = useSelector((state) => state.user);
 
   const { cases } = useSelector((state) => state.case);
-  const token = useSelector((state) => state.auth?.token); // ✅ added
+
+  const token = useSelector((state) => state.auth?.token);
 
   useEffect(() => {
     dispatch(rehydrateUser());
   }, [dispatch]);
 
   useEffect(() => {
-    if (profile?.id && profile?.role === "admin" && token) { // ✅ guard
+    if (profile?.id && profile?.role === "admin" && token) {
       dispatch(fetchProfile({ role: "admin", id: profile.id }));
       dispatch(fetchLawyers());
       dispatch(fetchUnassignedCasesForAdmin(profile.id));
@@ -63,7 +64,7 @@ const AdminDashboard = () => {
   }, [successMessage, dispatch]);
 
   useEffect(() => {
-    if (profile?.id && token) { // ✅ guard
+    if (profile?.id && token) {
       const subscription = SubscribeToNotifications(profile.id, (notification) => {
         setLiveNotifications((prev) => [...prev, notification]);
       });
@@ -72,15 +73,15 @@ const AdminDashboard = () => {
   }, [profile?.id, token]);
 
   useEffect(() => {
-    if (liveNotifications.length > 0 && profile?.id && profile?.role === "admin" && token) { // ✅ guard
+    if (liveNotifications.length > 0 && profile?.id && profile?.role === "admin") {
       dispatch(fetchUnassignedCasesForAdmin(profile.id));
       dispatch(fetchLawyers());
     }
-  }, [liveNotifications.length, dispatch, profile?.id, profile?.role, token]);
+  }, [liveNotifications.length, dispatch, profile?.id, profile?.role]);
 
   const handleLogout = () => {
-    dispatch(logout());
-    navigate("/");
+    dispatch(logout()); // ✅ now uses authSlice
+    navigate("/login");
   };
 
   const handleApproval = (lawyer, approved) => {

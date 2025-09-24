@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from "../../redux/actions/logout";
+import { logout } from "../../redux/auth/authSlice"; // ✅ updated
 import {
   updateProfile,
   clearSuccessMessage,
@@ -41,14 +41,14 @@ const ClientDashboard = () => {
     (state) => state.user
   );
   const { cases } = useSelector((state) => state.case);
-  const token = useSelector((state) => state.auth?.token); // ✅ added
+  const token = useSelector((state) => state.auth?.token);
 
   useEffect(() => {
     dispatch(rehydrateUser());
   }, [dispatch]);
 
   useEffect(() => {
-    if (!profile?.id || !token) return; // ✅ guard added
+    if (!profile?.id || !token) return;
 
     dispatch(fetchProfile({ role: profile.role, id: profile.id }));
 
@@ -66,14 +66,13 @@ const ClientDashboard = () => {
   }, [successMessage, dispatch]);
 
   useEffect(() => {
-    if (profile?.id && token) { // ✅ guard added
+    if (profile?.id && token) {
       const subscription = SubscribeToNotifications(
         profile.id,
         (notification) => {
           setNotifications((prev) => [...prev, notification]);
         }
       );
-
       return () => subscription.unsubscribe();
     }
   }, [profile?.id, token]);
@@ -92,8 +91,8 @@ const ClientDashboard = () => {
   };
 
   const handleLogout = () => {
-    dispatch(logout());
-    navigate("/");
+    dispatch(logout()); // ✅ now uses authSlice
+    navigate("/login");
   };
 
   const handleProfileUpdate = (profileData) => {

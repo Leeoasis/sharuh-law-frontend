@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { logout } from "../../redux/actions/logout";
+import { logout } from "../../redux/auth/authSlice"; // ✅ updated
 import {
   fetchProfile,
   updateProfile,
@@ -49,8 +49,12 @@ const LawyerDashboard = () => {
     notifications: storedNotifications,
   } = useSelector((state) => state.user);
 
-  const { cases, availableCases } = useSelector((state) => state.case);
-  const token = useSelector((state) => state.auth?.token); // ✅ added
+  const {
+    cases,
+    availableCases,
+  } = useSelector((state) => state.case);
+
+  const token = useSelector((state) => state.auth?.token);
 
   // Rehydrate user on mount
   useEffect(() => {
@@ -59,14 +63,14 @@ const LawyerDashboard = () => {
 
   // Fetch profile on login
   useEffect(() => {
-    if (profile?.id && profile?.role === 'lawyer' && token) { // ✅ guard
+    if (profile?.id && profile?.role === 'lawyer' && token) {
       dispatch(fetchProfile({ role: profile.role, id: profile.id }));
     }
   }, [dispatch, profile?.id, profile?.role, token]);
 
   // Fetch cases/available cases depending on selection
   useEffect(() => {
-    if (!profile?.id || !token) return; // ✅ guard
+    if (!profile?.id || !token) return;
 
     if (selectedOption === 'Client Management' || selectedOption === 'Case Management') {
       dispatch(fetchCases(profile.id));
@@ -81,7 +85,7 @@ const LawyerDashboard = () => {
 
   // Fetch notifications
   useEffect(() => {
-    if (profile?.id && token) { // ✅ guard
+    if (profile?.id && token) {
       dispatch(fetchNotifications(profile.id));
     }
   }, [dispatch, profile?.id, token]);
@@ -95,7 +99,7 @@ const LawyerDashboard = () => {
 
   // Live notifications subscription
   useEffect(() => {
-    if (profile?.id && token) { // ✅ guard
+    if (profile?.id && token) {
       const subscription = SubscribeToNotifications(profile.id, (notification) => {
         setLiveNotifications((prev) => [...prev, notification]);
       });
@@ -127,8 +131,8 @@ const LawyerDashboard = () => {
   };
 
   const handleLogout = () => {
-    dispatch(logout());
-    navigate("/");
+    dispatch(logout()); // ✅ now uses authSlice
+    navigate("/login");
   };
 
   const handleProfileUpdate = (profileData) => {
