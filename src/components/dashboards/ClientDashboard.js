@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from "../../redux/actions/logout";
+import { logout } from "../../redux/auth/authSlice";
 import {
   updateProfile,
   clearSuccessMessage,
@@ -41,38 +41,39 @@ const ClientDashboard = () => {
     (state) => state.user
   );
   const { cases } = useSelector((state) => state.case);
+  const token = useSelector((state) => state.auth?.token);
 
+  // ✅ Rehydrate first, then fetch profile + cases
   useEffect(() => {
-    dispatch(rehydrateUser());
+    dispatch(rehydrateUser()).then((res) => {
+      const data = res.payload;
+      if (data?.role === "client" && data?.id) {
+        dispatch(fetchProfile({ role: "client", id: data.id }));
+        dispatch(fetchCases(data.id));
+      }
+    });
   }, [dispatch]);
 
   useEffect(() => {
-    if (!profile?.id) return;
-
-    dispatch(fetchProfile({ role: profile.role, id: profile.id }));
-
-    if (selectedOption === "Case Management") {
-      dispatch(fetchCases(profile.id));
-    }
-  }, [dispatch, profile?.id, profile?.role, selectedOption]);
-
-  useEffect(() => {
     if (successMessage) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         dispatch(clearSuccessMessage());
       }, 3000);
+      return () => clearTimeout(timer);
     }
   }, [successMessage, dispatch]);
 
   useEffect(() => {
-    if (profile?.id) {
-      const subscription = SubscribeToNotifications(profile.id, (notification) => {
-        setNotifications((prev) => [...prev, notification]);
-      });
-
+    if (profile?.id && token) {
+      const subscription = SubscribeToNotifications(
+        profile.id,
+        (notification) => {
+          setNotifications((prev) => [...prev, notification]);
+        }
+      );
       return () => subscription.unsubscribe();
     }
-  }, [profile?.id]);
+  }, [profile?.id, token]);
 
   const openModal = () => setModalIsOpen(true);
   const closeModal = () => {
@@ -89,13 +90,12 @@ const ClientDashboard = () => {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate("/");
+    navigate("/login");
   };
 
   const handleProfileUpdate = (profileData) => {
     if (!profile?.id) return;
-    const formattedProfileData = { user: profileData };
-    dispatch(updateProfile({ id: profile.id, profileData: formattedProfileData }));
+    dispatch(updateProfile({ id: profile.id, profileData: { user: profileData } }));
   };
 
   const handleCaseCreate = (caseData) => {
@@ -179,7 +179,10 @@ const ClientDashboard = () => {
   return (
     <div className="flex flex-col min-h-screen bg-secondary-light text-white">
       <div className="flex flex-col lg:flex-row flex-grow">
-        <Sidebar selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+        <Sidebar
+          selectedOption={selectedOption}
+          setSelectedOption={setSelectedOption}
+        />
         <div className="flex-1 p-4 lg:p-8">
           <Header handleLogout={handleLogout} profile={profile} />
           <div className="bg-secondary shadow-lg rounded-lg p-4 lg:p-6 flex-grow">

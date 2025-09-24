@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { logout } from "../../redux/actions/logout";
+import { logout } from "../../redux/auth/authSlice";
 import {
   fetchProfile,
   updateProfile,
@@ -49,44 +49,21 @@ const LawyerDashboard = () => {
     notifications: storedNotifications,
   } = useSelector((state) => state.user);
 
-  const {
-    cases,
-    availableCases,
-  } = useSelector((state) => state.case);
+  const { cases, availableCases } = useSelector((state) => state.case);
+  const token = useSelector((state) => state.auth?.token);
 
-  // Rehydrate user on mount
+  // ✅ Rehydrate and then fetch all required data
   useEffect(() => {
-    dispatch(rehydrateUser());
+    dispatch(rehydrateUser()).then((res) => {
+      const data = res.payload;
+      if (data?.role === "lawyer" && data?.id) {
+        dispatch(fetchProfile({ role: "lawyer", id: data.id }));
+        dispatch(fetchCases(data.id));
+        dispatch(fetchAvailableCases(data.id));
+        dispatch(fetchNotifications(data.id));
+      }
+    });
   }, [dispatch]);
-
-  // Fetch profile on login
-  useEffect(() => {
-    if (profile?.id && profile?.role === 'lawyer') {
-      dispatch(fetchProfile({ role: profile.role, id: profile.id }));
-    }
-  }, [dispatch, profile?.id, profile?.role]);
-
-  // Fetch cases/available cases depending on selection
-  useEffect(() => {
-    if (!profile?.id) return;
-
-    if (selectedOption === 'Client Management' || selectedOption === 'Case Management') {
-      dispatch(fetchCases(profile.id));
-    }
-    if (selectedOption === 'Available Cases') {
-      dispatch(fetchAvailableCases(profile.id));
-    }
-    if (selectedOption === 'Profile') {
-      dispatch(fetchProfile({ role: profile.role, id: profile.id }));
-    }
-  }, [selectedOption, dispatch, profile?.id, profile?.role]);
-
-  // Fetch notifications
-  useEffect(() => {
-    if (profile?.id) {
-      dispatch(fetchNotifications(profile.id));
-    }
-  }, [dispatch, profile?.id]);
 
   // Redirect unapproved lawyers
   useEffect(() => {
@@ -95,17 +72,17 @@ const LawyerDashboard = () => {
     }
   }, [profile, navigate]);
 
-  // Live notifications subscription
+  // Live notifications
   useEffect(() => {
-    if (profile?.id) {
+    if (profile?.id && token) {
       const subscription = SubscribeToNotifications(profile.id, (notification) => {
         setLiveNotifications((prev) => [...prev, notification]);
       });
       return () => subscription.unsubscribe();
     }
-  }, [profile?.id]);
+  }, [profile?.id, token]);
 
-  // Clear success message after 3s
+  // Clear success message
   useEffect(() => {
     if (successMessage) {
       const timer = setTimeout(() => {
@@ -130,7 +107,7 @@ const LawyerDashboard = () => {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate("/");
+    navigate("/login");
   };
 
   const handleProfileUpdate = (profileData) => {

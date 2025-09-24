@@ -3,7 +3,10 @@ import React from "react";
 const RAILS_HOST = "http://localhost:3001"; // Update for production as needed
 
 const PanelistSection = ({ lawyers = [], onApprove }) => {
-  const pendingLawyers = lawyers.filter((lawyer) => !lawyer.approved);
+  // ✅ include lawyers with approved === false OR null
+  const pendingLawyers = lawyers.filter(
+    (lawyer) => lawyer.approved === false || lawyer.approved == null
+  );
 
   // Always force absolute URLs for document links
   const makeAbsoluteUrl = (url) => {
@@ -33,7 +36,9 @@ const PanelistSection = ({ lawyers = [], onApprove }) => {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6 text-primary-light">Pending Lawyer Applications</h2>
+      <h2 className="text-2xl font-bold mb-6 text-primary-light">
+        Pending Lawyer Applications
+      </h2>
 
       {pendingLawyers.length === 0 ? (
         <p className="text-gray-300">No pending applications at the moment.</p>
@@ -47,17 +52,32 @@ const PanelistSection = ({ lawyers = [], onApprove }) => {
               <h3 className="text-xl font-semibold text-white">{lawyer.name}</h3>
               <p className="text-gray-300">Email: {lawyer.email}</p>
               <p className="text-gray-300">License #: {lawyer.license_number}</p>
-              <p className="text-gray-300">Years of Experience: {lawyer.experience_years}</p>
+              <p className="text-gray-300">
+                Years of Experience: {lawyer.experience_years}
+              </p>
               <p className="text-gray-300">Rate: R{lawyer.rate}</p>
-              <p className="text-gray-300">Expertise: {lawyer.areas_of_expertise}</p>
-              <p className="text-gray-300">Preferred Court: {lawyer.preferred_court}</p>
+              <p className="text-gray-300">
+                Expertise: {lawyer.areas_of_expertise}
+              </p>
+              <p className="text-gray-300">
+                Preferred Court: {lawyer.preferred_court}
+              </p>
 
               <div className="space-y-1 mt-2">
-                {renderDocumentLink(lawyer.admission_enrollment_order, "Admission/Enrollment Order")}
+                {renderDocumentLink(
+                  lawyer.admission_enrollment_order,
+                  "Admission/Enrollment Order"
+                )}
                 <br />
-                {renderDocumentLink(lawyer.good_standing_letter, "Good Standing Letter")}
+                {renderDocumentLink(
+                  lawyer.good_standing_letter,
+                  "Good Standing Letter"
+                )}
                 <br />
-                {renderDocumentLink(lawyer.fidelity_fund_certificate, "Fidelity Fund Certificate")}
+                {renderDocumentLink(
+                  lawyer.fidelity_fund_certificate,
+                  "Fidelity Fund Certificate"
+                )}
                 <br />
                 {renderDocumentLink(lawyer.id_document, "ID Document")}
               </div>
