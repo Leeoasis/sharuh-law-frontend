@@ -13,7 +13,7 @@ const Contact = () => {
 
       {/* Hero Section */}
         <section
-          className="relative flex items-center justify-center h-[70vh] bg-cover bg-center pt-10 md:pt-10"
+          className="relative flex items-center justify-center h-[70vh] bg-cover bg-center"
           style={{ backgroundImage: `url(${ContactBackground})` }}
         >
 

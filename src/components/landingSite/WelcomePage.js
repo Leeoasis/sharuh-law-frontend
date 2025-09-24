@@ -107,7 +107,7 @@ const Landing = () => {
 
       {/* Hero Section */}
       <div
-        className="relative flex items-center justify-center h-[100vh] bg-cover bg-center animate-fade-in pt-5 md:pt-5"
+        className="relative flex items-center justify-center h-[100vh] bg-cover bg-center animate-fade-in"
         style={{ backgroundImage: `url(${MessageImage})` }}
       >
         <div className="absolute inset-0 bg-blue-900/70"></div>
@@ -257,10 +257,10 @@ const Landing = () => {
                 ))}
               </ul>
               <Link
-                to="/services"
+                to="/register"
                 className="inline-block mt-2 px-6 py-2 bg-amber-500 text-gray-900 font-semibold rounded-full shadow hover:bg-amber-600 transition transform hover:scale-105 animate-pulse-slow"
               >
-                Learn More
+                Get Started
               </Link>
             </div>
           </div>

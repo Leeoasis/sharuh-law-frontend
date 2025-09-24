@@ -2,14 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
-import Logo from "../../assets/Images/logo.png"; // ✅ Import your logo
+import Logo from "../../assets/Images/logo.png";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
 
-  // ✅ Detect scroll to switch background
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -30,19 +29,21 @@ const Navbar = () => {
     <nav
       className={`fixed top-0 left-0 w-full z-50 transition duration-500 ${
         isScrolled
-          ? "bg-gray-900 shadow-lg"
+          ? "bg-gray-900/90 shadow-lg backdrop-blur-md"
           : "bg-gray-900/30 backdrop-blur-md"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+      <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-20">
         {/* Logo + Name */}
         <Link to="/" className="flex items-center space-x-3">
-          <img
-            src={Logo}
-            alt="Legal Suise Logo"
-            className="h-14 w-auto object-contain"
-          />
-          {/* ✅ Hide text on mobile, show on md+ */}
+          <div className="p-1 bg-white/10 backdrop-blur-sm rounded-lg">
+            <img
+              src={Logo}
+              alt="Legal Suise Logo"
+              className="h-16 w-auto object-contain rounded-md md:h-14"
+            />
+          </div>
+          {/* Show name on md+ only */}
           <span className="hidden md:inline text-xl font-bold text-amber-400">
             Legal Suise
           </span>
@@ -67,7 +68,7 @@ const Navbar = () => {
           </Link>
         </div>
 
-        {/* Hamburger Menu */}
+        {/* Mobile Menu Toggle */}
         <button
           className="md:hidden flex items-center"
           onClick={toggleMobileMenu}
@@ -80,7 +81,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-gray-900 text-white shadow-lg">
+        <div className="md:hidden bg-gray-900/95 text-white shadow-lg backdrop-blur-md">
           <div className="flex flex-col space-y-4 p-4">
             <Link to="/" className={getLinkClass("/")} onClick={closeMobileMenu}>
               Home

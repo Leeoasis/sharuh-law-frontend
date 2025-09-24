@@ -140,7 +140,7 @@ const About = () => {
 
       {/* Hero Section */}
      <section
-        className="relative flex items-center justify-center h-[70vh] bg-cover bg-center animate-fade-in pt-10 md:pt-20"
+        className="relative flex items-center justify-center h-[70vh] bg-cover bg-center animate-fade-in"
        style={{ backgroundImage: `url(${AboutBackground})` }}
       >
         <div className="absolute inset-0 bg-blue-900/70"></div>
