@@ -9,7 +9,7 @@ import {
   rehydrateUser,
 } from "../../redux/features/userSlice";
 import { fetchUnassignedCasesForAdmin } from "../../redux/features/caseSlice";
-import { logout } from "../../redux/auth/authSlice"; // ✅ updated
+import { logout } from "../../redux/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 import Footer from "../landingSite/Footer";
 import Header from "../dashboards/features/lawyer/Header";
@@ -42,27 +42,30 @@ const AdminDashboard = () => {
 
   const token = useSelector((state) => state.auth?.token);
 
+  // ✅ Rehydrate first, then trigger fetches
   useEffect(() => {
-    dispatch(rehydrateUser());
+    dispatch(rehydrateUser()).then((res) => {
+      const data = res.payload;
+      if (data?.role === "admin" && data?.id) {
+        dispatch(fetchProfile({ role: "admin", id: data.id }));
+        dispatch(fetchLawyers());
+        dispatch(fetchUnassignedCasesForAdmin(data.id));
+        dispatch(fetchNotifications(data.id));
+      }
+    });
   }, [dispatch]);
 
-  useEffect(() => {
-    if (profile?.id && profile?.role === "admin" && token) {
-      dispatch(fetchProfile({ role: "admin", id: profile.id }));
-      dispatch(fetchLawyers());
-      dispatch(fetchUnassignedCasesForAdmin(profile.id));
-      dispatch(fetchNotifications(profile.id));
-    }
-  }, [dispatch, profile?.id, profile?.role, token]);
-
+  // ✅ Clear success messages after 3s
   useEffect(() => {
     if (successMessage) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         dispatch(clearSuccessMessage());
       }, 3000);
+      return () => clearTimeout(timer);
     }
   }, [successMessage, dispatch]);
 
+  // ✅ Live notification subscription
   useEffect(() => {
     if (profile?.id && token) {
       const subscription = SubscribeToNotifications(profile.id, (notification) => {
@@ -72,6 +75,7 @@ const AdminDashboard = () => {
     }
   }, [profile?.id, token]);
 
+  // ✅ Refetch data if new notifications arrive
   useEffect(() => {
     if (liveNotifications.length > 0 && profile?.id && profile?.role === "admin") {
       dispatch(fetchUnassignedCasesForAdmin(profile.id));
@@ -80,7 +84,7 @@ const AdminDashboard = () => {
   }, [liveNotifications.length, dispatch, profile?.id, profile?.role]);
 
   const handleLogout = () => {
-    dispatch(logout()); // ✅ now uses authSlice
+    dispatch(logout());
     navigate("/login");
   };
 
@@ -102,7 +106,9 @@ const AdminDashboard = () => {
     dispatch(updateProfile({ id: lawyer.id, profileData: { user: updatedData } }))
       .then((res) => {
         if (res.meta.requestStatus === "fulfilled") {
-          toast.success(`${lawyer.name} has been ${approved ? "approved" : "rejected"}`);
+          toast.success(
+            `${lawyer.name} has been ${approved ? "approved" : "rejected"}`
+          );
           dispatch(fetchLawyers());
         } else {
           toast.error("Approval failed");
@@ -111,7 +117,9 @@ const AdminDashboard = () => {
   };
 
   const handleCaseAssign = (caseId, lawyerId, fee, commission) => {
-    alert(`Assigned case ${caseId} to lawyer ${lawyerId} for R${fee} (R${commission} commission)`);
+    alert(
+      `Assigned case ${caseId} to lawyer ${lawyerId} for R${fee} (R${commission} commission)`
+    );
   };
 
   const handleProfileUpdate = (profileData) => {
@@ -124,7 +132,13 @@ const AdminDashboard = () => {
       case "Panelist Applications":
         return <PanelistSection lawyers={lawyers} onApprove={handleApproval} />;
       case "Client Case Matching":
-        return <CaseMatchSection cases={cases} lawyers={lawyers} onAssign={handleCaseAssign} />;
+        return (
+          <CaseMatchSection
+            cases={cases}
+            lawyers={lawyers}
+            onAssign={handleCaseAssign}
+          />
+        );
       case "Profile":
         return <ProfileSection profile={profile} onUpdate={handleProfileUpdate} />;
       case "Notifications":
@@ -142,7 +156,10 @@ const AdminDashboard = () => {
     <div className="flex flex-col min-h-screen bg-secondary-light text-white">
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="flex flex-col lg:flex-row flex-grow">
-        <Sidebar selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+        <Sidebar
+          selectedOption={selectedOption}
+          setSelectedOption={setSelectedOption}
+        />
         <div className="flex-1 p-4 lg:p-8">
           <Header
             handleLogout={handleLogout}

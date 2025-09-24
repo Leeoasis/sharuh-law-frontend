@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from "../../redux/auth/authSlice"; // ✅ updated
+import { logout } from "../../redux/auth/authSlice";
 import {
   updateProfile,
   clearSuccessMessage,
@@ -43,25 +43,23 @@ const ClientDashboard = () => {
   const { cases } = useSelector((state) => state.case);
   const token = useSelector((state) => state.auth?.token);
 
+  // ✅ Rehydrate first, then fetch profile + cases
   useEffect(() => {
-    dispatch(rehydrateUser());
+    dispatch(rehydrateUser()).then((res) => {
+      const data = res.payload;
+      if (data?.role === "client" && data?.id) {
+        dispatch(fetchProfile({ role: "client", id: data.id }));
+        dispatch(fetchCases(data.id));
+      }
+    });
   }, [dispatch]);
 
   useEffect(() => {
-    if (!profile?.id || !token) return;
-
-    dispatch(fetchProfile({ role: profile.role, id: profile.id }));
-
-    if (selectedOption === "Case Management") {
-      dispatch(fetchCases(profile.id));
-    }
-  }, [dispatch, profile?.id, profile?.role, selectedOption, token]);
-
-  useEffect(() => {
     if (successMessage) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         dispatch(clearSuccessMessage());
       }, 3000);
+      return () => clearTimeout(timer);
     }
   }, [successMessage, dispatch]);
 
@@ -91,14 +89,13 @@ const ClientDashboard = () => {
   };
 
   const handleLogout = () => {
-    dispatch(logout()); // ✅ now uses authSlice
+    dispatch(logout());
     navigate("/login");
   };
 
   const handleProfileUpdate = (profileData) => {
     if (!profile?.id) return;
-    const formattedProfileData = { user: profileData };
-    dispatch(updateProfile({ id: profile.id, profileData: formattedProfileData }));
+    dispatch(updateProfile({ id: profile.id, profileData: { user: profileData } }));
   };
 
   const handleCaseCreate = (caseData) => {
