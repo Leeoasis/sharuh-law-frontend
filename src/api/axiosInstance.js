@@ -3,8 +3,8 @@ import axios from 'axios';
 // =======================
 // Toggle API here:
 // =======================
-const API_URL = 'http://127.0.0.1:3001';
-// const API_URL = 'https://sharuh-law-backend.onrender.com';
+// const API_URL = 'http://127.0.0.1:3001';
+const API_URL = 'https://sharuh-law-backend.onrender.com';
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
